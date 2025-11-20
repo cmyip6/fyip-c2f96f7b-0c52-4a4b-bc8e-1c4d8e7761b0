@@ -2,38 +2,50 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToMany,
   ManyToOne,
   JoinColumn,
+  Unique,
 } from 'typeorm';
-import { BaseEntity } from './base.entity';
-import { PropertyLength } from 'apps/task-management/src/libs/data/const/length.const';
-import { Organizations } from './organizations.entity';
-import { Roles } from './roles.entity';
+import { BaseEntity, RoleEntity, OrganizationEntity } from '.';
+import { PropertyLength } from '../../../libs/data/const';
 
 @Entity('USERS')
-export class Users extends BaseEntity {
+@Unique('USER_USERNAME_UNIQUE', ['username'])
+export class UserEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true, length: PropertyLength.TITLE })
+  @Column({ length: PropertyLength.TITLE, type: 'varchar' })
   username: string;
 
-  @Column({ select: false })
+  @Column({ length: PropertyLength.TITLE, type: 'varchar' })
+  email: string;
+
+  @Column({ select: false, type: 'varchar', length: PropertyLength.PASSWORD })
   passwordHash: string;
 
-  @ManyToOne(() => Roles, (roles) => roles.users, { nullable: false })
-  @JoinColumn({ name: 'ROLE_ID' })
-  role: Roles;
-  @Column({ name: 'ROLE_ID', type: Number, nullable: false })
+  @Column({ type: 'text' })
+  token: string;
+
+  @ManyToOne(() => RoleEntity, (roles) => roles.users, { nullable: true })
+  @JoinColumn({
+    name: 'ROLE_ID',
+    referencedColumnName: 'id',
+    foreignKeyConstraintName: 'USER_ROLE_CONSTRAINT',
+  })
+  role: RoleEntity;
+  @Column({ name: 'ROLE_ID', type: Number, nullable: true })
   roleId: number;
 
-  @ManyToOne(() => Organizations, (org) => org.employees, { nullable: false })
-  @JoinColumn({ name: 'ORGANIZATION_ID' })
-  organization: Organizations;
-  @Column({ name: 'ORGANIZATION_ID', type: Number, nullable: false })
+  @ManyToOne(() => OrganizationEntity, (org) => org.employees, {
+    nullable: true,
+  })
+  @JoinColumn({
+    name: 'ORGANIZATION_ID',
+    referencedColumnName: 'id',
+    foreignKeyConstraintName: 'USER_ORGANIZATION_CONSTRAINT',
+  })
+  organization: OrganizationEntity;
+  @Column({ name: 'ORGANIZATION_ID', type: Number, nullable: true })
   organizationId: number;
-
-  @OneToMany(() => Task, (task) => task.assignedTo)
-  tasks: Task[];
 }
