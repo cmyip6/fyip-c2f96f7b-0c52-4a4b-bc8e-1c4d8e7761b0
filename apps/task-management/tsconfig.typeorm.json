@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2019",
+    "baseUrl": ".",
+    "types": ["node"],
+    "paths": {
+      "src/*": ["apps/task-management/src/*"]
+    },
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
+    "esModuleInterop": true
+  },
+  "include": [
+    "apps/task-management/src/**/*.ts",
+    "apps/task-management/ormconfig.ts"
+  ]
+}

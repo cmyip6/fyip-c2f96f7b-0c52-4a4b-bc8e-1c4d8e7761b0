@@ -66,9 +66,6 @@ export class UserService {
 
     if (dto?.roleId) {
       const roleDb = await this.roleService.findOneById(dto.roleId);
-      if (!roleDb) {
-        throw new NotFoundException('Role is not found' + dto.organizationId);
-      }
       roleId = roleDb.id;
     }
 
@@ -76,7 +73,6 @@ export class UserService {
       throw new ConflictException('Username exists in the database');
     }
 
-    //hash password
     const passwordHash = await bcrypt.hash(dto.password, 10);
     const ret = await this.repoUser.save({
       username: dto.username,

@@ -1,14 +1,8 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
-import { DataSource, DeleteResult, Repository } from 'typeorm';
-import { Transactional } from 'typeorm-transactional';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { DataSource, Repository } from 'typeorm';
 import { RoleEntity } from '../../models';
-import { CreateRoleDto } from '../../../../libs/data/dto';
+import { GetRoleResponseDto } from '../../../../libs/data/dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class RoleService {
@@ -20,7 +14,14 @@ export class RoleService {
     return this.dataSource.getRepository(RoleEntity);
   }
 
-  public async findOneById(roleId: number): Promise<RoleEntity | null> {
-    return await this.repoRole.findOneBy({ id: roleId });
+  public async findOneById(roleId: number): Promise<GetRoleResponseDto> {
+    this.logger.verbose('Getting role by ID: ' + roleId);
+    const roleDb = await this.repoRole.findOneBy({ id: roleId });
+
+    if (!roleDb) {
+      throw new NotFoundException('Role is not found. ID: ' + roleId);
+    }
+
+    return plainToInstance(GetRoleResponseDto, roleDb);
   }
 }

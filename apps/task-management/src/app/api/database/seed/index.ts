@@ -1,1 +1,1 @@
-export { CreateRoles } from './create-roles';
+export { CreateSeedData } from './create-seed-data';

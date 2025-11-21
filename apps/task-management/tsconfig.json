@@ -20,6 +20,7 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "strict": true,
+    "esModuleInterop": true,
     "strictPropertyInitialization": false
   },
   "angularCompilerOptions": {

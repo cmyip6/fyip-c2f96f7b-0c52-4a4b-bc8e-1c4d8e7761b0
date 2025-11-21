@@ -27,7 +27,7 @@ export class RoleEntity extends BaseEntity {
   })
   name: string;
 
-  @Column({ type: 'text', length: PropertyLength.TITLE, nullable: true })
+  @Column({ type: 'varchar', length: PropertyLength.TITLE, nullable: true })
   description: string;
 
   @ManyToOne(() => OrganizationEntity, (organization) => organization.roles, {

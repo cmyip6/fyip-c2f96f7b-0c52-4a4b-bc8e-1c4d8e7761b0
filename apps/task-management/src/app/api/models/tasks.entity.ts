@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseEntity } from './base.entity';
-import { PropertyLength } from '../../../libs/data/const/length.const';
+import { PropertyLength } from '../../../libs/data/const';
 import { UserEntity, PermissionEntity } from '.';
 
 @Entity('TASKS')

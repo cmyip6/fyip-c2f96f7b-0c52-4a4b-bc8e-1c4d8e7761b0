@@ -3,7 +3,13 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "setup": "docker compose -f ./docker/docker-compose.yml up -d"
+    "setup": "docker compose --env-file .env -f docker/docker-compose.yml up -d",
+    "setdown": "docker compose --env-file .env -f docker/docker-compose.yml down",
+    "typeorm": "ts-node --project apps/task-management/tsconfig.typeorm.json ./node_modules/typeorm/cli.js -d apps/task-management/ormconfig.ts",
+    "migration:generate": "npm run typeorm -- migration:generate",
+    "migration:run": "npm run typeorm -- migration:run",
+    "migration:revert": "npm run typeorm -- migration:revert",
+    "start:api": ""
   },
   "private": true,
   "dependencies": {
@@ -27,7 +33,6 @@
     "pg": "^8.16.3",
     "rxjs": "~7.8.0",
     "swagger-ui-express": "^5.0.1",
-    "typeorm": "^0.3.27",
     "typeorm-extension": "^3.7.1",
     "typeorm-transactional": "^0.5.0",
     "zone.js": "~0.15.0"
@@ -70,8 +75,10 @@
     "nx": "22.1.0",
     "prettier": "^3.6.2",
     "ts-jest": "^29.1.0",
-    "ts-node": "10.9.1",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
     "tslib": "^2.3.0",
+    "typeorm": "^0.3.27",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.40.0"
   }

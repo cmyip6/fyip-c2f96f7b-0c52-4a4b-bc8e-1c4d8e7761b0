@@ -6,9 +6,7 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { BaseEntity } from './base.entity';
-import { RoleEntity } from './roles.entity';
-import { TaskEntity } from './tasks.entity';
+import { BaseEntity, RoleEntity, TaskEntity } from '.';
 
 @Entity('PERMISSIONS')
 @Unique('TASK_ROLE_UNIQUE', ['task', 'role'])

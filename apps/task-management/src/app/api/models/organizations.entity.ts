@@ -1,4 +1,3 @@
-import { PropertyLength } from 'apps/task-management/src/libs/data/const/length.const';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -8,6 +7,7 @@ import {
 } from 'typeorm';
 
 import { BaseEntity, UserEntity, RoleEntity } from '.';
+import { PropertyLength } from '../../../libs/data/const';
 
 @Entity('ORGANIZATIONS')
 @Unique('ORGANIZATIONS_NAME_UNIQUE', ['name'])
@@ -18,7 +18,11 @@ export class OrganizationEntity extends BaseEntity {
   @Column({ type: 'varchar', length: PropertyLength.TITLE })
   name: string;
 
-  @Column({ type: 'text', length: PropertyLength.DESCRIPTION, nullable: true })
+  @Column({
+    type: 'varchar',
+    length: PropertyLength.DESCRIPTION,
+    nullable: true,
+  })
   description: string | null = null;
 
   @OneToMany(() => UserEntity, (user) => user.organization)

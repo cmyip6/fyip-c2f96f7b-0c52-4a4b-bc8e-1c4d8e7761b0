@@ -1,14 +1,13 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "strictPropertyInitialization": false,
     "outDir": "../../dist/out-tsc",
     "types": []
   },
-  "include": ["src/**/*.ts"],
-  "exclude": [
-    "jest.config.ts",
-    "src/app/api/test-e2e/**/*.suite.ts",
-    "src/app/api/test-e2e/**/*.spec.ts",
-    "jest.config.cts"
-  ]
+  "include": ["src/**/*.ts", "../../typeorm-datasource.ts"],
+  "exclude": ["jest.config.ts", "jest.config.cts"]
 }

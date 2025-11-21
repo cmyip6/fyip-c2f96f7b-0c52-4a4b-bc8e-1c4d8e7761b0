@@ -1,11 +1,8 @@
-import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
-import { firstValueFrom } from 'rxjs';
-import { DataSource, In, IsNull, Not, Repository, UpdateResult } from 'typeorm';
-import { Transactional } from 'typeorm-transactional';
-
-import { UserEntity } from '../../models/users.entity';
-import { CreateUserDto, GetUserReponseDto } from '../../../../libs/data/dto';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { DataSource, Repository } from 'typeorm';
 import { OrganizationEntity } from '../../models';
+import { plainToInstance } from 'class-transformer';
+import { GetOrganizationResponseDto } from 'src/libs/data/dto/get-organization-response.dto';
 
 @Injectable()
 export class OrganizationService {
@@ -21,7 +18,17 @@ export class OrganizationService {
 
   public async findOneById(
     organizationId: number,
-  ): Promise<OrganizationEntity | null> {
-    return await this.repoOrganization.findOneBy({ id: organizationId });
+  ): Promise<GetOrganizationResponseDto> {
+    this.logger.verbose('Getting origanization by ID: ' + organizationId);
+    const organization = await this.repoOrganization.findOneBy({
+      id: organizationId,
+    });
+
+    if (!organization) {
+      throw new NotFoundException(
+        'Organization is not found. ID: ' + organizationId,
+      );
+    }
+    return plainToInstance(GetOrganizationResponseDto, organization);
   }
 }
