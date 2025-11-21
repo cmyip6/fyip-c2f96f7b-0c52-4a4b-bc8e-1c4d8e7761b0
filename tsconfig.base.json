@@ -1,30 +1,25 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "allowImportingTsExtensions": true,
     "rootDir": ".",
     "sourceMap": true,
     "declaration": false,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "useDefineForClassFields": false,
     "importHelpers": true,
-    "target": "es2015",
+    "target": "es2022",
     "module": "esnext",
-    "lib": ["es2020", "dom"],
+    "lib": ["es2022", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "src/libs/*": ["libs/*"],
+      "@task-management/data": ["libs/data/index.ts"],
+      "@task-management/auth": ["libs/auth/index.ts"]
+    }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.js",
-    "**/*.jsx",
-    "**/*.mjs",
-    "**/*.cjs",
-    "**/*.json"
-  ],
   "exclude": ["node_modules", "tmp"]
 }

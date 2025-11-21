@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "types": ["node", "jest"]
+  },
+  "include": ["**/*.ts", "../../libs/auth/guard/user-enabled.guard.ts"],
+  "files": ["main.ts"],
+  "exclude": [
+    "jest.config.ts",
+    "**/*.suite.ts",
+    "**/*.e2e-spec.ts",
+    "test-e2e/**/*"
+  ]
+}

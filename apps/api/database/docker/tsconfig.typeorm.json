@@ -1,0 +1,17 @@
+{
+  "extends": "../../../../tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2019",
+    "baseUrl": ".",
+    "types": ["node"],
+    "paths": {
+      "src/*": ["apps/api/*"]
+    },
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
+    "esModuleInterop": true
+  },
+  "include": ["apps/api/**/*.ts", ".ormconfig.ts"]
+}
