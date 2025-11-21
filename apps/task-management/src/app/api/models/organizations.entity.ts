@@ -6,13 +6,13 @@ import {
   Unique,
 } from 'typeorm';
 import { BaseEntity } from './base.entity';
-import { Users } from './users.entity';
+import { UserEntity } from './users.entity';
 import { PropertyLength } from 'apps/task-management/src/libs/data/const/length.const';
-import { Roles } from './roles.entity';
+import { RoleEntity } from './roles.entity';
 
 @Entity('ORGANIZATIONS')
 @Unique('ORGANIZATIONS_NAME_UNIQUE', ['name'])
-export class Organizations extends BaseEntity {
+export class OrganizationEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -22,9 +22,9 @@ export class Organizations extends BaseEntity {
   @Column({ type: 'text', length: PropertyLength.DESCRIPTION, nullable: true })
   description: string | null = null;
 
-  @OneToMany(() => Users, (user) => user.organization)
-  employees: Users[];
+  @OneToMany(() => UserEntity, (user) => user.organization)
+  employees: UserEntity[];
 
-  @OneToMany(() => Roles, (role) => role.organization)
-  roles: Roles[];
+  @OneToMany(() => RoleEntity, (role) => role.organization)
+  roles: RoleEntity[];
 }
