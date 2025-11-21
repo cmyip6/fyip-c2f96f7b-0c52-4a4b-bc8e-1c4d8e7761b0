@@ -1,14 +1,15 @@
 import {faker} from '@faker-js/faker';
 import {ABSTRACT_AUTHORIZATION_SERVICE, EntityTypeOptions, GenericUserLoginDto, KeycloakClientService, makeid} from '@lib/base-library';
 import {Inject, Injectable} from '@nestjs/common';
+import {AppConfigService, UserTypeOptions} from '@plexxis/plexxisjs-nest-libs';
 import {BaseFactory} from '@test-lib/test-base-library';
-import {CreatePasUserDto} from '../../src/dto/user';
-import {RoleEntity, TeamEntity, UserEntity} from '../../src/model';
-import {AuthorizationImplService, PermissionOptions} from '../../src/module/authorization-impl';
+
 import {PermissionProfileFactory} from './permission-profile.factory';
 import {RestrictionProfileFactory} from './restriction-profile.factory';
 import {RoleFactory} from './role.factory';
-import {AppConfigService, UserTypeOptions} from '@plexxis/plexxisjs-nest-libs';
+import {CreatePasUserDto} from '../../src/dto/user';
+import {RoleEntity, TeamEntity, UserEntity} from '../../src/model';
+import {AuthorizationImplService, PermissionOptions} from '../../src/module/authorization-impl';
 import {RoleNameOptions} from '../../src/module/notifications-subscription/enum';
 
 export type PermissionsType = Partial<Record<EntityTypeOptions, PermissionOptions>>;
@@ -86,7 +87,7 @@ export class UserFactory extends BaseFactory<UserEntity> {
         }
         return {
             email: userDB.email,
-            password: password,
+            password,
         };
     }
 

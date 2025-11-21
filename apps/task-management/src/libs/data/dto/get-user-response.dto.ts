@@ -1,4 +1,5 @@
 import { IsString, IsNotEmpty, IsUUID, MaxLength } from 'class-validator';
+
 import { PropertyLength } from '../const/length.const';
 
 export class GetUserReponseDto {

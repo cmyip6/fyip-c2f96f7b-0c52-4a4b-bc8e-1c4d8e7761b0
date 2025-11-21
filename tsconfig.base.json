@@ -16,5 +16,14 @@
     "baseUrl": ".",
     "paths": {}
   },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.mjs",
+    "**/*.cjs",
+    "**/*.json"
+  ],
   "exclude": ["node_modules", "tmp"]
 }

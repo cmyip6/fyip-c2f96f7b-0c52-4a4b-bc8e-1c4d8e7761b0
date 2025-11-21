@@ -1,9 +1,9 @@
-import { DataSource } from 'typeorm';
 import { Logger } from '@nestjs/common';
 import { Seeder } from 'typeorm-extension';
 import { RoleEntity } from '../../models/roles.entity';
 import { CreateRoleDto } from 'apps/task-management/src/libs/data/dto/create-role.dto';
 import { UserRole } from 'apps/task-management/src/libs/data/type';
+import { type DataSource } from 'typeorm';
 
 export class CreateRoles implements Seeder {
   logger = new Logger(CreateRoles.name);

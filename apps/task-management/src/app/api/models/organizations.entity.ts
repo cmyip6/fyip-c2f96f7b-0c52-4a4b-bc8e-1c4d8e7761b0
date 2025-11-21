@@ -1,3 +1,4 @@
+import { PropertyLength } from 'apps/task-management/src/libs/data/const/length.const';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -5,10 +6,8 @@ import {
   OneToMany,
   Unique,
 } from 'typeorm';
-import { BaseEntity } from './base.entity';
-import { UserEntity } from './users.entity';
-import { PropertyLength } from 'apps/task-management/src/libs/data/const/length.const';
-import { RoleEntity } from './roles.entity';
+
+import { BaseEntity, UserEntity, RoleEntity } from '.';
 
 @Entity('ORGANIZATIONS')
 @Unique('ORGANIZATIONS_NAME_UNIQUE', ['name'])

@@ -1,5 +1,5 @@
-import { DataSource, MixedList } from 'typeorm';
 import { Logger } from '@nestjs/common';
+import { type DataSource, type MixedList } from 'typeorm';
 
 export class TypeORMMigrations {
   private readonly logger = new Logger(TypeORMMigrations.name);

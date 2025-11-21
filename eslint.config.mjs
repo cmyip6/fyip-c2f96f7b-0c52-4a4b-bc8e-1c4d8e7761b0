@@ -1,4 +1,6 @@
 import nx from '@nx/eslint-plugin';
+import importPlugin from 'eslint-plugin-import';
+import unusedImports from 'eslint-plugin-unused-imports';
 
 export default [
   ...nx.configs['flat/base'],
@@ -48,11 +50,33 @@ export default [
           ],
         },
       ],
-      'tsc/config': ['error', { configFile: 'tsconfig.json' }],
-      '@typescript-eslint/explicit-function-return-type': 'error',
-      '@typescript-eslint/explicit-module-boundary-types': 'error',
-      '@typescript-eslint/no-explicit-any': 'error',
-      'require-await': 'error',
+    },
+  },
+
+  {
+    files: [
+      '**/*.ts',
+      '**/*.tsx',
+      '**/*.cts',
+      '**/*.mts',
+      '**/*.js',
+      '**/*.jsx',
+      '**/*.cjs',
+      '**/*.mjs',
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: './tsconfig.base.json',
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    plugins: {
+      import: importPlugin,
+      'unused-imports': unusedImports,
+    },
+    rules: {
+      'unused-imports/no-unused-imports': 'error',
+      'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_' },
@@ -85,12 +109,29 @@ export default [
       'no-restricted-syntax': [
         'error',
         {
-          selector:
-            "CallExpression[callee.object.name='console'][callee.property.name!=/^(log|warn|error|info|trace|time|timeEnd)$/]",
-          message: 'Unexpected property on console object was called',
+          groups: [
+            'builtin',
+            'external',
+            'internal',
+            ['parent', 'sibling', 'index'],
+          ],
+          'newlines-between': 'always',
+          alphabetize: { order: 'asc', caseInsensitive: true },
         },
       ],
-      'no-console': 'error',
+      'import/no-duplicates': 'error',
+      'import/no-cycle': 'warn',
+      'import/prefer-default-export': 'off',
+      curly: ['error', 'all'],
+      eqeqeq: ['error', 'always'],
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'object-shorthand': 'error',
+      'arrow-body-style': ['error', 'as-needed'],
+      'no-irregular-whitespace': 'error',
+      'no-eval': 'error',
+      'no-implied-eval': 'error',
+      '@typescript-eslint/no-misused-promises': 'error',
     },
   },
 ];

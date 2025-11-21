@@ -7,6 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
+
 import { BaseEntity } from './base.entity';
 import { UserEntity } from './users.entity';
 import { OrganizationEntity } from './organizations.entity';

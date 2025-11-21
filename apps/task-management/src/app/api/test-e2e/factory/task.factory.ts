@@ -1,12 +1,12 @@
 import {faker} from '@faker-js/faker';
-import {FINANCIAL_OUTLOOK, TASK_MANAGEMENT} from '@lib/base-library';
+import {FINANCIAL_OUTLOOK, TASK_MANAGEMENT,TaskTypeOptions} from '@lib/base-library';
 import {Injectable} from '@nestjs/common';
 import {BaseFactory} from '@test-lib/test-base-library';
 import * as moment from 'moment';
 import {FindOptionsSelect, FindOptionsWhere, UpdateResult} from 'typeorm';
+
 import {CreateTaskDto, UpdateTaskDto} from '../../src/dto/task';
 import {TaskEntity} from '../../src/model';
-import {TaskTypeOptions} from '@lib/base-library';
 
 @Injectable()
 export class TaskFactory extends BaseFactory<TaskEntity> {

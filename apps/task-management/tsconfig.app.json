@@ -7,9 +7,8 @@
   "include": ["src/**/*.ts"],
   "exclude": [
     "jest.config.ts",
-    "src/test-setup.ts",
-    "src/**/*.test.ts",
-    "src/**/*.spec.ts",
+    "src/app/api/test-e2e/**/*.suite.ts",
+    "src/app/api/test-e2e/**/*.spec.ts",
     "jest.config.cts"
   ]
 }

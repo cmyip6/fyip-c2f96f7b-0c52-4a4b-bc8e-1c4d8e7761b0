@@ -1,12 +1,13 @@
-import { INestApplication, Logger } from '@nestjs/common';
-import { Test, TestingModule, TestingModuleBuilder } from '@nestjs/testing';
+import { type INestApplication, Logger } from '@nestjs/common';
+import { Test, type TestingModule, type TestingModuleBuilder } from '@nestjs/testing';
 import * as bodyParser from 'body-parser';
+import { type DataSource } from 'typeorm';
 import { initializeTransactionalContext } from 'typeorm-transactional';
+
 import { TestModule } from './modules/test.module';
 import * as seeds from '../database/seed';
-import { NewBaseTest } from './test/base-test';
+import { type NewBaseTest } from './test/base-test';
 import { TypeORMMigrations } from '../helper/typeorm-migration';
-import { DataSource } from 'typeorm';
 
 const TESTTORUN = process.env['TESTTORUN'];
 const SUITETORUN = process.env['SUITETORUN'];
@@ -63,7 +64,7 @@ beforeAll(async () => {
 });
 
 describe('Task Management Test Suite', () => {
-  // eslint-disable-next-line
+   
   test('', () => {
     for (const appTestClass of Object.keys(DecoratedSuites)) {
       const testSuite = DecoratedSuites[appTestClass];
@@ -72,9 +73,7 @@ describe('Task Management Test Suite', () => {
     }
   });
 
-  const isSelectedToRun = (actualName, selectedName): boolean => {
-    return !selectedName || selectedName === actualName;
-  };
+  const isSelectedToRun = (actualName, selectedName): boolean => !selectedName || selectedName === actualName;
 
   for (const appTestClass of Object.keys(DecoratedSuites)) {
     const testSuite = DecoratedSuites[appTestClass];
@@ -125,7 +124,7 @@ describe('Task Management Test Suite', () => {
 });
 
 afterAll(async (): Promise<void> => {
-  if (app) await app.close();
+  if (app) {await app.close();}
 });
 function getDataSourceToken(
   DATABASE_NAME: any,
