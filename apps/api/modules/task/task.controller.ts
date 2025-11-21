@@ -6,7 +6,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ValidateResponse } from '../../helper';
-import { TaskResponseDto } from '../../../../libs/data/dto';
+import { GetTaskResponseDto } from '../../../../libs/data/dto';
 import { TaskService } from './task.service';
 import { User } from '../../decorator/request-user.decorator';
 import { AuthUserInterface } from '../../../../libs/data/type';
@@ -22,20 +22,20 @@ import {
 export class TaskController {
   constructor(protected readonly service: TaskService) {}
 
-  @Get('/:taskId')
+  @Get(':taskId')
   @CheckPolicies('param.id')
-  @ValidateResponse(TaskResponseDto)
+  @ValidateResponse(GetTaskResponseDto)
   @CheckPolicies('params.taskId')
   getOne(
     @Param('taskId', ParseIntPipe) taskId: number,
-  ): Promise<TaskResponseDto> {
+  ): Promise<GetTaskResponseDto> {
     return this.service.getOneById(taskId);
   }
 
   @Get()
   @Viewer()
-  @ValidateResponse(TaskResponseDto, { isArray: true })
-  getAll(@User() user: AuthUserInterface): Promise<TaskResponseDto[]> {
+  @ValidateResponse(GetTaskResponseDto, { isArray: true })
+  getAll(@User() user: AuthUserInterface): Promise<GetTaskResponseDto[]> {
     return this.service.getAll(user.id);
   }
 }

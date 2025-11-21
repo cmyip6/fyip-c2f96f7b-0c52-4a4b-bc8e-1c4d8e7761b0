@@ -11,7 +11,4 @@ export class GetOrganizationResponseDto {
   @IsString()
   @IsOptional()
   description?: string;
-
-  //   employees;
-  //   roles;
 }

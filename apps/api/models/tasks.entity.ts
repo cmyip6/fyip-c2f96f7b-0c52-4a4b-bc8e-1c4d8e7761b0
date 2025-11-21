@@ -9,6 +9,7 @@ import {
 import { BaseEntity } from './base.entity';
 import { PropertyLength } from '../../../libs/data/const';
 import { UserEntity, PermissionEntity } from '.';
+import { TaskStatusOptions } from '../../../libs/data/type';
 
 @Entity('TASKS')
 export class TaskEntity extends BaseEntity {
@@ -20,6 +21,14 @@ export class TaskEntity extends BaseEntity {
 
   @Column({ name: 'DESCRIPTION', type: 'json', nullable: true })
   description: string;
+
+  @Column({
+    name: 'STATUS',
+    type: 'varchar',
+    nullable: false,
+    default: TaskStatusOptions.OPEN,
+  })
+  status: string;
 
   @Column({ name: 'DELETED_AT', type: 'timestamp', nullable: true })
   deletedAt: Date;

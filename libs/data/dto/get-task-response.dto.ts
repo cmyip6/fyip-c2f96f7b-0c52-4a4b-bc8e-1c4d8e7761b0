@@ -8,7 +8,6 @@ import {
   IsDate,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { GetOrganizationResponseDto } from './get-organization-response.dto';
 import { BasePropertiesDto } from './base-properties.dto';
 import { GetUserReponseDto } from './get-user-response.dto';
 import { TaskEntity } from '../../../apps/api/models';
@@ -19,6 +18,7 @@ export class GetTaskResponseDto extends BasePropertiesDto {
     this.id = task.id;
     this.title = task.title;
     this.description = task.description;
+    this.status = task.status;
     this.deletedAt = task.deletedAt;
     this.deletedBy = task.deletedBy;
   }
@@ -33,6 +33,10 @@ export class GetTaskResponseDto extends BasePropertiesDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @IsString()
+  @IsOptional()
+  status?: string;
 
   @IsOptional()
   @IsDate()

@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsUUID, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsUUID,
+  MaxLength,
+  IsNumber,
+} from 'class-validator';
 
 import { PropertyLength } from '../const/length.const';
 
@@ -11,7 +17,7 @@ export class GetUserReponseDto {
   @MaxLength(PropertyLength.TITLE)
   username: string;
 
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  roleId;
+  roleId: number;
 }

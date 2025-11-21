@@ -53,12 +53,14 @@ export class CreateUserDto {
     type: Number,
   })
   @IsNumber()
-  roleId: number;
+  @IsOptional()
+  roleId?: number;
 
   @ApiProperty({
     description: 'Organization id',
     type: Number,
   })
   @IsNumber()
-  organizationId: number;
+  @IsOptional()
+  organizationId?: number;
 }

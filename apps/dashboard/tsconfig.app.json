@@ -4,8 +4,8 @@
     "outDir": "../../dist/out-tsc",
     "types": []
   },
-  "files": ["src/main.ts", "src/app/app.config.ts"],
-  "include": ["src/**/*.d.ts"],
+  "files": ["main.ts", "app.config.ts"],
+  "include": ["*/*.d.ts"],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
