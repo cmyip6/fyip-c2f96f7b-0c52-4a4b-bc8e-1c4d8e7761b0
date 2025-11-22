@@ -12,7 +12,7 @@ import { BaseEntity } from './base.entity';
 import { UserEntity } from './users.entity';
 import { OrganizationEntity } from './organizations.entity';
 import { PermissionEntity } from './permissions.entity';
-import { PropertyLength } from '../../../libs/data/const';
+import { PropertyLength } from '@libs/data/const/length.const';
 
 @Entity('ROLES')
 @Unique('ROLES_NAME_ORGANIZATION_UNIQUE', ['name', 'organization'])

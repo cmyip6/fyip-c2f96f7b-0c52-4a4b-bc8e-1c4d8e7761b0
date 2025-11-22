@@ -6,25 +6,21 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { AuthImptService } from '@api/modules/auth-impt/auth-impt.service';
 import {
   CHECK_POLICIES_KEY,
   NO_POLICIES_KEY,
-} from '../decorator/policy-guard.decorator';
-import { AuthService } from '../../../apps/api/modules/auth/auth.service';
-import { getEntityValue } from '../../../apps/api/helper';
+} from '@libs/auth/decorator/policy-guard.decorator';
+import { getEntityValue } from '@api/helper/extract-path-id';
 
-export const ABSTRACT_AUTHORIZATION_SERVICE = 'ABSTRACT_AUTHORIZATION_SERVICE';
+export const AUTHORIZATION_SERVICE = 'AUTHORIZATION_SERVICE';
 
 @Injectable()
 export class PoliciesGuard implements CanActivate {
-  private logger: Logger;
-
-  constructor(
-    protected readonly reflector: Reflector,
-    private readonly authService: AuthService,
-  ) {
-    this.logger = new Logger(this.constructor.name);
-  }
+  private logger: Logger = new Logger(PoliciesGuard.name);
+  @Inject(AUTHORIZATION_SERVICE)
+  private readonly authImptService: AuthImptService;
+  @Inject(Reflector) private readonly reflector: Reflector;
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     this.logger.verbose('Check if no policies is defined');
@@ -50,7 +46,7 @@ export class PoliciesGuard implements CanActivate {
     this.logger.verbose('Checking for each defined path');
     for (const path of policyHandlers) {
       const taskId = getEntityValue(request, path);
-      const res = await this.authService.userIsAuthorized(
+      const res = await this.authImptService.userIsAuthorized(
         requestUser.id,
         taskId,
       );

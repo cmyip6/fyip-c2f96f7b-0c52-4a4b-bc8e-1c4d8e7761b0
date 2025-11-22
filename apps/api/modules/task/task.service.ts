@@ -1,22 +1,21 @@
+import { GetTaskResponseDto } from '@api/dto/get-task-response.dto';
+import { TaskEntity } from '@api/models/tasks.entity';
+import { UserEntity } from '@api/models/users.entity';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { GetTaskResponseDto } from '../../../../libs/data/dto';
-import { DataSource, FindManyOptions, Repository } from 'typeorm';
-import { TaskEntity, UserEntity } from '../../models';
+import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
+import { FindManyOptions, Repository } from 'typeorm';
 
 @Injectable()
 export class TaskService {
   logger = new Logger(TaskService.name);
 
-  constructor(private readonly dataSource: DataSource) {}
-
-  get taskRepo(): Repository<TaskEntity> {
-    return this.dataSource.getRepository<TaskEntity>(TaskEntity);
-  }
-
-  get userRepo(): Repository<UserEntity> {
-    return this.dataSource.getRepository<UserEntity>(UserEntity);
-  }
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly userRepo: Repository<UserEntity>,
+    @InjectRepository(TaskEntity)
+    private readonly taskRepo: Repository<TaskEntity>,
+  ) {}
 
   async getOneById(taskId: number): Promise<GetTaskResponseDto> {
     const taskDb = await this.taskRepo.findOne({ where: { id: taskId } });
@@ -26,7 +25,7 @@ export class TaskService {
   async getAll(userId: string): Promise<GetTaskResponseDto[]> {
     const foundUser = await this.userRepo.findOneBy({ id: userId });
     if (!foundUser) {
-      throw new BadRequestException('Invalid user id' + userId);
+      throw new BadRequestException('Invalid user id: ' + userId);
     }
 
     let condition: FindManyOptions<TaskEntity> = {

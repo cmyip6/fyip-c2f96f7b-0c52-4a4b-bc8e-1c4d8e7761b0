@@ -1,11 +1,11 @@
 import { Logger } from '@nestjs/common';
 import { Seeder } from 'typeorm-extension';
-import { RoleEntity } from '../../models/roles.entity';
-import { type DataSource } from 'typeorm';
-import { CreateRoleDto } from '../../../../libs/data/dto';
-import { UserRoleOptions } from '../../../../libs/data/type';
-import { OrganizationEntity, UserEntity } from '../../models';
+import { DataSource } from 'typeorm';
 import { hashPassword } from '../../helper/password-hash';
+import { UserRoleOptions } from '@libs/data/type/user-role.enum';
+import { UserEntity } from '@api/models/users.entity';
+import { OrganizationEntity } from '@api/models/organizations.entity';
+import { RoleEntity } from '@api/models/roles.entity';
 
 export class CreateSeedData implements Seeder {
   logger = new Logger(CreateSeedData.name);
@@ -36,10 +36,11 @@ export class CreateSeedData implements Seeder {
         this.logger.debug('Creating roles...');
         rolesDb = await repoRole.save(
           roles.map((role) => {
-            const createRoleDto: CreateRoleDto = {
+            const createRoleDto = {
               organizationId: organization.id,
               name: role,
               description: role + ' description',
+              createdBy: owner.id,
             };
             return createRoleDto;
           }),
@@ -53,7 +54,8 @@ export class CreateSeedData implements Seeder {
           email: role.name + '@example.com',
           passwordHash: await hashPassword(role.name + passwordSuffix),
           roleId: role.id,
-          organization: organization.id,
+          organizationId: organization.id,
+          createdBy: owner.id,
         });
       }
       const usersDb = await repoUser.save(usersToSave);

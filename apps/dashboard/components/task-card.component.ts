@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { GetTaskResponseInterface } from '../../../libs/data/type';
+import { GetTaskResponseInterface } from '../../../libs/data/type/get-task-response.interface';
 
 @Component({
   selector: 'app-task-card',

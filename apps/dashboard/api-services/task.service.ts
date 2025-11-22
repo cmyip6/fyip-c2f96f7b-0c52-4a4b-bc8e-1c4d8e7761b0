@@ -1,19 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { GetTaskResponseInterface } from '../../../libs/data/type';
+import { GetTaskResponseInterface } from '../../../libs/data/type/get-task-response.interface';
 import { BaseApiService } from './base-api.service';
 
 @Injectable({ providedIn: 'root' })
 export class TaskApiService extends BaseApiService {
   getTasks(): Observable<GetTaskResponseInterface[]> {
-    return this.http.get<GetTaskResponseInterface[]>(`${this.apiUrl}/tasks`);
+    return this.http.get<GetTaskResponseInterface[]>(`${this.apiUrl}/task`);
   }
 
   createTask(
     task: Partial<GetTaskResponseInterface>,
   ): Observable<GetTaskResponseInterface> {
     return this.http.post<GetTaskResponseInterface>(
-      `${this.apiUrl}/tasks`,
+      `${this.apiUrl}/task`,
       task,
     );
   }
@@ -23,7 +23,7 @@ export class TaskApiService extends BaseApiService {
     status: string,
   ): Observable<GetTaskResponseInterface> {
     return this.http.patch<GetTaskResponseInterface>(
-      `${this.apiUrl}/tasks/${id}/status`,
+      `${this.apiUrl}/task/${id}/status`,
       {
         status,
       },
@@ -31,6 +31,6 @@ export class TaskApiService extends BaseApiService {
   }
 
   deleteTask(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/tasks/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/task/${id}`);
   }
 }

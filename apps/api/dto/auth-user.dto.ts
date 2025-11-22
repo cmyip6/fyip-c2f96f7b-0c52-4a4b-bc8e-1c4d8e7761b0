@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class AuthUserDto {
   @IsString()
@@ -8,4 +8,8 @@ export class AuthUserDto {
 export class AuthUserResponseDto {
   @IsString()
   token: string;
+
+  @IsString()
+  @IsOptional()
+  refreshToken?: string;
 }

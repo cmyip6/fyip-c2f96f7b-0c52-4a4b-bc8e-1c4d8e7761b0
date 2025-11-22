@@ -1,3 +1,4 @@
+import { PropertyLength } from '@libs/data/const/length.const';
 import {
   IsString,
   IsNotEmpty,
@@ -5,8 +6,6 @@ import {
   MaxLength,
   IsNumber,
 } from 'class-validator';
-
-import { PropertyLength } from '../const/length.const';
 
 export class GetUserReponseDto {
   @IsUUID()

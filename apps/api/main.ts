@@ -12,8 +12,8 @@ import {
   initializeTransactionalContext,
 } from 'typeorm-transactional';
 import { TaskManagementModule } from './task-management.module';
-import { TypeORMMigrations } from './helper';
 import { CONNECTION_NAME } from './database/dbconfig';
+import { TypeORMMigrations } from './helper/typeorm-migration';
 
 const DROP_SCHEMA = process.env['DROP_SCHEMA'] === 'true';
 const RUN_MIGRATIONS = process.env['RUN_MIGRATIONS'] === 'true';
@@ -43,9 +43,11 @@ async function bootstrap(): Promise<void> {
   app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({
+      transform: true,
+      enableDebugMessages: true,
+      transformOptions: { enableImplicitConversion: true },
       whitelist: true,
       forbidNonWhitelisted: true,
-      transform: true,
     }),
   );
 

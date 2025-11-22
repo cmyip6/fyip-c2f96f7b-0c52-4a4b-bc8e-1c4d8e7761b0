@@ -4,7 +4,7 @@
     "outDir": "../../dist/out-tsc",
     "types": ["node", "jest"]
   },
-  "include": ["**/*.ts", "../../libs/auth/guard/user-enabled.guard.ts"],
+  "include": ["**/*.ts", "guard/user-enabled.guard.ts", "modules/auth-impt"],
   "files": ["main.ts"],
   "exclude": [
     "jest.config.ts",

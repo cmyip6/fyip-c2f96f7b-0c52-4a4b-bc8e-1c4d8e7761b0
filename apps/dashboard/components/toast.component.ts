@@ -8,21 +8,21 @@ export type ToastType = 'error' | 'success' | 'info';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="fixed top-6 right-6 z-[100] animate-slide-in">
+    <div class="fixed top-6 right-6 z-[100] animate-slide-in font-sans">
       <div
         [ngClass]="{
-          'border-red-500 shadow-red-100': type === 'error',
-          'border-green-500 shadow-green-100': type === 'success',
-          'border-blue-500 shadow-blue-100': type === 'info',
+          'border-red-900/80': type === 'error',
+          'border-lime-900/80': type === 'success',
+          'border-slate-600/80': type === 'info',
         }"
-        class="bg-white border-l-4 shadow-2xl rounded-lg p-4 max-w-sm w-80 flex items-start gap-3 transition-all"
+        class="bg-[#2A2F35] border-l-[6px] shadow-[0_8px_20px_rgba(0,0,0,0.8)] rounded-sm ring-1 ring-white/5 p-4 max-w-sm w-80 flex items-start gap-4 transition-all relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-b before:from-white/5 before:to-transparent before:pointer-events-none"
       >
         <div
-          class="shrink-0 mt-0.5"
+          class="shrink-0 mt-0.5 relative z-10"
           [ngClass]="{
-            'text-red-500': type === 'error',
-            'text-green-500': type === 'success',
-            'text-blue-500': type === 'info',
+            'text-red-500/90': type === 'error',
+            'text-lime-500/90': type === 'success',
+            'text-slate-400': type === 'info',
           }"
         >
           <svg
@@ -68,24 +68,30 @@ export type ToastType = 'error' | 'success' | 'info';
           </svg>
         </div>
 
-        <div class="flex-1 min-w-0">
-          <h3 class="font-bold text-gray-900 text-sm capitalize">
+        <div class="flex-1 min-w-0 relative z-10">
+          <!-- Title: Uppercase, aged brass color, mono/stencil font style -->
+          <h3
+            class="font-bold text-amber-50/90 text-sm uppercase tracking-wider font-mono"
+          >
             {{ title }}
           </h3>
-          <p class="text-sm text-gray-600 mt-1 break-words leading-tight">
+          <!-- Body: Muted gray -->
+          <p
+            class="text-sm text-gray-400 mt-2 break-words leading-snug font-medium"
+          >
             {{ message }}
           </p>
         </div>
 
         <button
           (click)="close.emit()"
-          class="text-gray-400 hover:text-gray-600 transition-colors"
+          class="text-gray-500 hover:text-amber-50/80 transition-colors relative z-10"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            stroke-width="1.5"
+            stroke-width="2"
             stroke="currentColor"
             class="w-5 h-5"
           >

@@ -1,8 +1,7 @@
+import { AuthUserInterface } from '@libs/data/type/auth-user.interface';
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { ConfigService } from '@nestjs/config';
 import * as jwt from 'jsonwebtoken';
-import { AuthUserInterface } from '../../../libs/data/type';
 
 declare module 'express' {
   interface Request {
@@ -14,25 +13,27 @@ declare module 'express' {
 export class AuthMiddleware implements NestMiddleware {
   logger = new Logger(AuthMiddleware.name);
 
-  constructor(private readonly configService: ConfigService) {}
-
   use(req: Request, _res: Response, next: NextFunction) {
     const authHeader = req.headers['authorization'];
-
     if (!authHeader) {
+      this.logger.warn(
+        `Request without authorization header is accessing ${req.path}`,
+      );
       return next();
     }
 
     const [bearer, token] = authHeader.split(' ');
 
     if (bearer === 'Bearer' && token) {
-      const secret = this.configService.get<string>('JWT_SECRET');
+      const secret = process.env.JWT_SECRET;
 
       try {
         this.logger.verbose('Decoding token');
         const decoded: { user: AuthUserInterface } = jwt.verify(token, secret);
 
         if (decoded.user && this.validateUserStructure(decoded.user)) {
+          this.logger.verbose('User verified, setting user to header.');
+          this.logger.verbose(JSON.stringify(decoded.user, null, 10));
           req.user = decoded.user;
         }
       } catch (err) {
@@ -45,14 +46,7 @@ export class AuthMiddleware implements NestMiddleware {
     next();
   }
 
-  private validateUserStructure(user: any): boolean {
-    const currentTime = Math.floor(Date.now() / 1000);
-    return (
-      user.id &&
-      user.email &&
-      user.role &&
-      user.tokenExpiry &&
-      user.tokenExpiry > currentTime
-    );
+  private validateUserStructure(user: AuthUserInterface): boolean {
+    return Boolean(user.id && user.email && user.role && user.tokenExpiry);
   }
 }

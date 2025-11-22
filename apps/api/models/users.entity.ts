@@ -6,8 +6,10 @@ import {
   JoinColumn,
   Unique,
 } from 'typeorm';
-import { BaseEntity, RoleEntity, OrganizationEntity } from '.';
-import { PropertyLength } from '../../../libs/data/const';
+import { BaseEntity } from './base.entity';
+import { PropertyLength } from '@libs/data/const/length.const';
+import { RoleEntity } from './roles.entity';
+import { OrganizationEntity } from './organizations.entity';
 
 @Entity('USERS')
 @Unique('USER_USERNAME_UNIQUE', ['username'])

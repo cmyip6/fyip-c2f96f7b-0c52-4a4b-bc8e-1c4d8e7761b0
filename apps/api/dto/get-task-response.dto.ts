@@ -8,9 +8,9 @@ import {
   IsDate,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { BasePropertiesDto } from './base-properties.dto';
 import { GetUserReponseDto } from './get-user-response.dto';
-import { TaskEntity } from '../../../apps/api/models';
+import { TaskEntity } from '@api/models/tasks.entity';
+import { BasePropertiesDto } from './base-properties.dto';
 
 export class GetTaskResponseDto extends BasePropertiesDto {
   constructor(task: TaskEntity) {

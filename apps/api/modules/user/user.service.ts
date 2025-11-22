@@ -5,34 +5,30 @@ import {
   NotFoundException,
   NotImplementedException,
 } from '@nestjs/common';
-import { DataSource, DeleteResult, Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
+import * as bcrypt from 'bcrypt';
+import { InjectRepository } from '@nestjs/typeorm';
 
-import { UserEntity } from '../../models/users.entity';
-import {
-  CreateUserDto,
-  GetUserReponseDto,
-  RefreshTokenDto,
-} from '../../../../libs/data/dto';
 import { OrganizationService } from '../organization/organization.service';
 import { RoleService } from '../role/role.service';
-import { AuthUserDto } from '../../../../libs/data/dto/auth-user.dto';
-import * as bcrypt from 'bcrypt';
+import { GetUserReponseDto } from '@api/dto/get-user-response.dto';
+import { CreateUserDto } from '@api/dto/create-user.dto';
+import { AuthUserDto } from '@api/dto/auth-user.dto';
+import { RefreshTokenDto } from '@api/dto/refresh-token.dto';
+import { UserEntity } from '@api/models/users.entity';
 
 @Injectable()
 export class UserService {
   private logger: Logger;
 
   constructor(
+    @InjectRepository(UserEntity)
+    private readonly repoUser: Repository<UserEntity>,
     private readonly orgnaizationService: OrganizationService,
     private readonly roleService: RoleService,
-    private readonly dataSource: DataSource,
   ) {
     this.logger = new Logger(this.constructor.name);
-  }
-
-  protected get repoUser(): Repository<UserEntity> {
-    return this.dataSource.getRepository(UserEntity);
   }
 
   async findUserById(userId: string): Promise<UserEntity | null> {

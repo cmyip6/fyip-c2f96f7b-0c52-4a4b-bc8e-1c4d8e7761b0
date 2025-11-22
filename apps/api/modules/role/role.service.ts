@@ -1,18 +1,18 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
-import { RoleEntity } from '../../models';
-import { GetRoleResponseDto } from '../../../../libs/data/dto';
 import { plainToInstance } from 'class-transformer';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { RoleEntity } from '@api/models/roles.entity';
+import { GetRoleResponseDto } from '@api/dto/get-role-response.dto';
 
 @Injectable()
 export class RoleService {
   private logger: Logger = new Logger(RoleService.name);
 
-  constructor(private readonly dataSource: DataSource) {}
-
-  private get repoRole(): Repository<RoleEntity> {
-    return this.dataSource.getRepository(RoleEntity);
-  }
+  constructor(
+    @InjectRepository(RoleEntity)
+    private readonly repoRole: Repository<RoleEntity>,
+  ) {}
 
   public async findOneById(roleId: number): Promise<GetRoleResponseDto> {
     this.logger.verbose('Getting role by ID: ' + roleId);

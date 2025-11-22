@@ -1,19 +1,19 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
-import { OrganizationEntity } from '../../models';
 import { plainToInstance } from 'class-transformer';
-import { GetOrganizationResponseDto } from '../../../../libs/data/dto/get-organization-response.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { OrganizationEntity } from '@api/models/organizations.entity';
+import { GetOrganizationResponseDto } from '@api/dto/get-organization-response.dto';
 
 @Injectable()
 export class OrganizationService {
   private logger: Logger;
 
-  constructor(private readonly dataSource: DataSource) {
+  constructor(
+    @InjectRepository(OrganizationEntity)
+    private readonly repoOrganization: Repository<OrganizationEntity>,
+  ) {
     this.logger = new Logger(this.constructor.name);
-  }
-
-  protected get repoOrganization(): Repository<OrganizationEntity> {
-    return this.dataSource.getRepository(OrganizationEntity);
   }
 
   public async findOneById(

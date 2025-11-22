@@ -6,8 +6,10 @@ import {
   Unique,
 } from 'typeorm';
 
-import { BaseEntity, UserEntity, RoleEntity } from '.';
-import { PropertyLength } from '../../../libs/data/const';
+import { PropertyLength } from '@libs/data/const/length.const';
+import { UserEntity } from './users.entity';
+import { RoleEntity } from './roles.entity';
+import { BaseEntity } from './base.entity';
 
 @Entity('ORGANIZATIONS')
 @Unique('ORGANIZATIONS_NAME_UNIQUE', ['name'])

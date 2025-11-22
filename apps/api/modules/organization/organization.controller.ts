@@ -5,11 +5,12 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { OrganizationService } from './organization.service';
-import { RolesGuard, Viewer } from '../../../../libs/auth/guard';
-import { GetOrganizationResponseDto } from '../../../../libs/data/dto/get-organization-response.dto';
-import { ValidateResponse } from '../../helper';
+import { RolesGuard } from '@api/guard/roles-guard';
+import { GetOrganizationResponseDto } from '@api/dto/get-organization-response.dto';
+import { ValidateResponse } from '@api/helper/response-validator';
+import { Viewer } from '@libs/auth/decorator/roles.decorator';
 
 @UseGuards(RolesGuard)
 @ApiBearerAuth()

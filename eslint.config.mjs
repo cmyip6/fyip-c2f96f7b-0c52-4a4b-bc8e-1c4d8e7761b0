@@ -7,7 +7,7 @@ export default [
   ...nx.configs['flat/typescript'],
   ...nx.configs['flat/javascript'],
   {
-    ignores: ['**/dist'],
+    ignores: ['*/dist'],
     parser: '@typescript-eslint/parser',
     parserOptions: {
       project: 'tsconfig.json',

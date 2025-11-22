@@ -7,9 +7,10 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseEntity } from './base.entity';
-import { PropertyLength } from '../../../libs/data/const';
-import { UserEntity, PermissionEntity } from '.';
-import { TaskStatusOptions } from '../../../libs/data/type';
+import { UserEntity } from './users.entity';
+import { PropertyLength } from '@libs/data/const/length.const';
+import { TaskStatusOptions } from '@libs/data/type/task-status.enum';
+import { PermissionEntity } from './permissions.entity';
 
 @Entity('TASKS')
 export class TaskEntity extends BaseEntity {

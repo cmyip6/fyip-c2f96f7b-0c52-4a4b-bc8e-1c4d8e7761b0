@@ -1,46 +1,77 @@
-import { ArgumentsHost, HttpStatus, Logger } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
 import { BaseExceptionFilter } from '@nestjs/core';
+import { Request, Response } from 'express';
 
+interface CustomResponse extends Response {
+  message?: string;
+  data?: { error: Error };
+}
+
+interface ExtendedException extends Partial<HttpException> {
+  getStatus?: () => number;
+  status?: number | string;
+  response?: CustomResponse;
+  rawResponse?: CustomResponse;
+  label?: string;
+  statusCode?: number | ((code: number) => CustomResponse);
+  url?: string;
+  method?: string;
+  userId?: string | number;
+  userEmail?: string;
+}
+
+@Catch()
 export class AllExceptionsFilter extends BaseExceptionFilter {
-  private readonly logger: Logger = new Logger(AllExceptionsFilter.name);
+  private readonly logger = new Logger(AllExceptionsFilter.name);
 
-  catch(exception: any, host: ArgumentsHost): void {
-    const request = host.switchToHttp().getRequest();
-    const response = host.switchToHttp().getResponse();
+  catch(exception: ExtendedException, host: ArgumentsHost): void {
+    const ctx = host.switchToHttp();
+    const req = ctx.getRequest<Request>();
+    const res = ctx.getResponse<Response>();
+
     const statusCode =
-      (exception.getStatus && exception.getStatus()) ||
-      exception.status ||
-      (exception.response && exception.response.status) ||
-      (exception.rawResponse && exception.rawResponse.status) ||
+      Number(exception.getStatus?.()) ||
+      Number(exception.status) ||
+      exception.response?.status ||
+      exception.rawResponse?.status ||
       HttpStatus.INTERNAL_SERVER_ERROR;
 
-    let message = exception.message || '';
-    if (exception?.response?.message) message = exception.response.message;
-    if (exception?.response?.data?.error?.message)
-      message = exception.response.data.error.message;
-    if (exception.label) message = exception.label;
-    const responseBody = {
-      statusCode,
-      message,
-      timestamp: new Date().toISOString(),
-    };
+    let message =
+      exception.response?.message ??
+      exception.response?.data?.error?.message ??
+      exception.label ??
+      exception.message ??
+      'Internal server error';
+
     exception.statusCode = statusCode;
-    exception.url = request.originalUrl;
-    exception.method = request.method;
-    exception.userId = request.user?.id;
-    exception.userEmail = request.user?.email;
-    message = String(message);
-    const stack = exception instanceof Error ? exception.stack : '';
+    exception.url = req.originalUrl;
+    exception.method = req.method;
+    exception.userId = (req as any).user?.id;
+    exception.userEmail = (req as any).user?.email;
+
+    const stack = exception instanceof Error ? exception.stack : undefined;
 
     this.logger.warn({
       statusCode,
-      message: String(message),
-      path: request.url,
-      method: request.method,
-      user: request.user ? request.user.id : 'Anonymous',
-      stack: stack,
+      message,
+      path: req.url,
+      method: req.method,
+      user: (req as any).user?.id ?? 'Anonymous',
+      stack,
     });
 
-    response['status'](statusCode).json(responseBody);
+    const responseBody = {
+      statusCode,
+      message: String(message),
+      timestamp: new Date().toISOString(),
+    };
+
+    res.status(statusCode as number).json(responseBody);
   }
 }

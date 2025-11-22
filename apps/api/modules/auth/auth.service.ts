@@ -1,70 +1,42 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
-import { DataSource, Repository } from 'typeorm';
-import { PermissionEntity, TaskEntity, UserEntity } from '../../models';
-import { LoginDto } from '../../../../libs/data/dto';
-import { AuthUserResponseDto } from '../../../../libs/data/dto/auth-user.dto';
-import { AuthUserInterface } from '../../../../libs/data/type';
-import { ConfigService } from '@nestjs/config';
+import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
+import { InjectRepository } from '@nestjs/typeorm';
+import { LoginDto } from '@api/dto/login.dto';
+import { AuthUserResponseDto } from '@api/dto/auth-user.dto';
+import { AuthUserInterface } from '@libs/data/type/auth-user.interface';
+import { UserEntity } from '@api/models/users.entity';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
   constructor(
-    private readonly dataSource: DataSource,
-    private readonly userService: UserService,
-    private readonly configService: ConfigService,
+    @InjectRepository(UserEntity)
+    private readonly userRepo: Repository<UserEntity>,
   ) {}
-
-  get permissionRepo(): Repository<PermissionEntity> {
-    return this.dataSource.getRepository(PermissionEntity);
-  }
-
-  get taskRepo(): Repository<TaskEntity> {
-    return this.dataSource.getRepository(TaskEntity);
-  }
-
-  get userRepo(): Repository<UserEntity> {
-    return this.dataSource.getRepository(UserEntity);
-  }
-
-  async userIsAuthorized(
-    userId: string,
-    taskId: number | null,
-  ): Promise<boolean> {
-    this.logger.verbose('Checking permission...');
-    this.logger.verbose('Getting user by id' + userId);
-    const userDb = await this.userService.findUserById(userId);
-    if (!userDb) return false;
-
-    this.logger.verbose('Getting task' + taskId);
-    const taskDb = await this.taskRepo.findOneBy({ id: taskId });
-    if (!taskDb) return false;
-    const isTaskOwner = taskDb.userId === userId;
-
-    if (isTaskOwner) {
-      this.logger.verbose('User is owner of the task, access granted');
-      return true;
-    }
-
-    return this.permissionRepo.existsBy({ taskId, roleId: userDb.roleId });
-  }
 
   @Transactional()
   async login(loginDto: LoginDto): Promise<AuthUserResponseDto> {
-    const { username, password } = loginDto;
+    const { username, password, rememberMe } = loginDto;
+
+    if (rememberMe) {
+      // TODO: create refresh token logic
+    }
 
     const userDb = await this.userRepo.findOne({
+      select: { id: true, email: true, passwordHash: true, role: true },
       where: { username },
       relations: { role: true },
     });
-    const isMatch = await bcrypt.compare(password, userDb.passwordHash);
+    if (!userDb) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
-    if (!userDb || !isMatch) {
+    const isMatch = await bcrypt.compare(password, userDb?.passwordHash);
+    if (!isMatch) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -79,7 +51,7 @@ export class AuthService {
     };
 
     const payload = { user: authUser };
-    const secret = this.configService.get<string>('JWT_SECRET');
+    const secret = process.env.JWT_SECRET;
 
     const token = jwt.sign(payload, secret, {
       algorithm: 'HS256',
@@ -91,5 +63,10 @@ export class AuthService {
     return {
       token,
     };
+  }
+
+  @Transactional()
+  async logout(userId: string): Promise<void> {
+    await this.userRepo.update({ id: userId }, { token: null });
   }
 }

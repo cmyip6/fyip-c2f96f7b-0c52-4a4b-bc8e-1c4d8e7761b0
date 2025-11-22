@@ -10,17 +10,68 @@ import { AuthApiService } from '../api-services/auth.service';
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div
-      class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-4"
+      class="min-h-screen flex items-center justify-center bg-[#1a1d21] p-4 font-sans relative overflow-hidden"
     >
       <div
-        class="w-full max-w-md bg-white/95 backdrop-blur-sm shadow-2xl p-8 sm:p-12 rounded-[15%] transition-all duration-300 hover:shadow-indigo-500/20"
+        class="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"
+      ></div>
+
+      <div *ngIf="error()" class="fixed top-5 right-5 z-50 animate-bounce">
+        <div
+          class="bg-[#2A2F35] border-l-[6px] border-red-900/80 shadow-[0_8px_20px_rgba(0,0,0,0.8)] rounded-sm ring-1 ring-white/5 p-4 flex items-center gap-3"
+        >
+          <span
+            class="text-red-500 font-bold font-mono uppercase tracking-wider text-sm"
+            >Error:</span
+          >
+          <span class="text-gray-400 text-sm font-mono">{{ error() }}</span>
+        </div>
+      </div>
+
+      <div
+        class="w-full max-w-md bg-[#2A2F35] relative z-10 shadow-[0_20px_50px_rgba(0,0,0,0.9)] rounded-sm ring-1 ring-white/10 p-8 sm:p-12 overflow-hidden border-t-4 border-amber-700/50"
       >
+        <div
+          class="absolute top-3 left-3 w-1.5 h-1.5 rounded-full bg-zinc-700 shadow-[inset_0_1px_1px_rgba(0,0,0,1)]"
+        ></div>
+        <div
+          class="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-zinc-700 shadow-[inset_0_1px_1px_rgba(0,0,0,1)]"
+        ></div>
+        <div
+          class="absolute bottom-3 left-3 w-1.5 h-1.5 rounded-full bg-zinc-700 shadow-[inset_0_1px_1px_rgba(0,0,0,1)]"
+        ></div>
+        <div
+          class="absolute bottom-3 right-3 w-1.5 h-1.5 rounded-full bg-zinc-700 shadow-[inset_0_1px_1px_rgba(0,0,0,1)]"
+        ></div>
+
         <div class="text-center mb-10">
-          <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">
-            Welcome Back
+          <div
+            class="inline-flex items-center justify-center mb-4 p-3 bg-black/20 rounded-sm ring-1 ring-white/5"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-8 h-8 text-amber-600/80"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
+              />
+            </svg>
+          </div>
+          <h2
+            class="text-2xl font-bold text-amber-50/90 tracking-widest uppercase font-mono"
+          >
+            System Access
           </h2>
-          <p class="text-gray-500 mt-2 text-sm font-medium">
-            Please enter your details
+          <p
+            class="text-gray-500 mt-2 text-[10px] uppercase tracking-[0.2em] font-bold"
+          >
+            Authorized Personnel Only
           </p>
         </div>
 
@@ -29,66 +80,86 @@ import { AuthApiService } from '../api-services/auth.service';
           (ngSubmit)="onSubmit()"
           class="flex flex-col gap-6"
         >
-          <div class="space-y-2">
+          <div class="space-y-2 group">
             <label
               for="username"
-              class="block text-sm font-semibold text-gray-700 ml-1"
-              >Username</label
+              class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1 group-focus-within:text-amber-600 transition-colors"
+              >Identity</label
             >
-            <input
-              id="username"
-              type="text"
-              formControlName="username"
-              class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 ease-in-out shadow-sm"
-              placeholder="admin"
-            />
+            <div class="relative">
+              <input
+                id="username"
+                type="text"
+                formControlName="username"
+                class="w-full px-4 py-3 bg-black/20 border border-white/5 rounded-sm text-gray-300 placeholder-gray-600 focus:outline-none focus:border-amber-600/50 focus:bg-black/30 transition-all duration-200 font-mono text-sm"
+                placeholder="ENTER ID"
+              />
+              <div
+                class="absolute top-0 left-0 w-2 h-2 border-t border-l border-transparent group-focus-within:border-amber-600/50 transition-colors"
+              ></div>
+              <div
+                class="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-transparent group-focus-within:border-amber-600/50 transition-colors"
+              ></div>
+            </div>
           </div>
 
-          <div class="space-y-2">
+          <div class="space-y-2 group">
             <label
               for="password"
-              class="block text-sm font-semibold text-gray-700 ml-1"
-              >Password</label
+              class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1 group-focus-within:text-amber-600 transition-colors"
+              >Access Code</label
             >
-            <input
-              id="password"
-              type="password"
-              formControlName="password"
-              class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 ease-in-out shadow-sm"
-              placeholder="••••••"
-            />
+            <div class="relative">
+              <input
+                id="password"
+                type="password"
+                formControlName="password"
+                class="w-full px-4 py-3 bg-black/20 border border-white/5 rounded-sm text-gray-300 placeholder-gray-600 focus:outline-none focus:border-amber-600/50 focus:bg-black/30 transition-all duration-200 font-mono text-sm"
+                placeholder="••••••"
+              />
+              <div
+                class="absolute top-0 left-0 w-2 h-2 border-t border-l border-transparent group-focus-within:border-amber-600/50 transition-colors"
+              ></div>
+              <div
+                class="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-transparent group-focus-within:border-amber-600/50 transition-colors"
+              ></div>
+            </div>
           </div>
 
-          <div class="flex items-center justify-between px-1">
+          <div class="flex items-center justify-between px-1 mt-1">
             <div class="flex items-center">
               <input
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
-                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer"
+                class="h-4 w-4 rounded-sm border-gray-600 bg-black/20 text-amber-600 focus:ring-amber-600/30 cursor-pointer"
               />
               <label
                 for="remember-me"
-                class="ml-2 block text-sm text-gray-600 cursor-pointer select-none"
+                class="ml-2 block text-[10px] font-bold text-gray-500 uppercase tracking-wide cursor-pointer select-none hover:text-gray-400"
               >
-                Remember me
+                Maintain Session
               </label>
             </div>
             <a
               href="#"
-              class="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-              >Forgot password?</a
+              class="text-[10px] font-bold text-amber-700/80 hover:text-amber-600 uppercase tracking-wide transition-colors"
+              >Reset Key?</a
             >
           </div>
 
           <button
             type="submit"
             [disabled]="isLoading() || loginForm.invalid"
-            class="w-full flex justify-center items-center py-3.5 px-4 mt-2 border border-transparent rounded-xl shadow-lg shadow-indigo-500/30 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200 transform hover:-translate-y-0.5"
+            class="group relative w-full flex justify-center items-center py-4 px-4 mt-4 bg-amber-900/20 hover:bg-amber-800/30 border border-amber-700/30 text-amber-500 font-bold uppercase tracking-[0.25em] text-xs transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden rounded-sm"
           >
+            <div
+              class="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/5 to-transparent transition-transform duration-700 ease-in-out"
+            ></div>
+
             <ng-container *ngIf="isLoading()">
               <svg
-                class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                class="animate-spin -ml-1 mr-3 h-4 w-4 text-amber-500"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -107,11 +178,17 @@ import { AuthApiService } from '../api-services/auth.service';
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
-              Signing in...
+              Authenticating...
             </ng-container>
-            <span *ngIf="!isLoading()">Sign in</span>
+            <span *ngIf="!isLoading()">Initiate Session</span>
           </button>
         </form>
+      </div>
+
+      <div
+        class="absolute bottom-4 text-[10px] text-gray-700 font-mono tracking-widest uppercase"
+      >
+        Secure Link Established • v2.0.4 • UNCLASSIFIED
       </div>
     </div>
   `,

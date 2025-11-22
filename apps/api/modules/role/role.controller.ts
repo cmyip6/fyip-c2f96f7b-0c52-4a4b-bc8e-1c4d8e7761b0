@@ -5,17 +5,15 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { RoleService } from './role.service';
-import { Admin, RolesGuard } from '../../../../libs/auth/guard';
-import { GetRoleResponseDto } from '../../../../libs/data/dto';
+import { RolesGuard } from '@api/guard/roles-guard';
+import { GetRoleResponseDto } from '@api/dto/get-role-response.dto';
+import { Admin } from '@libs/auth/decorator/roles.decorator';
 
-@ApiTags('RoleEntity')
 @UseGuards(RolesGuard)
-@ApiBearerAuth()
 @Controller('role')
 export class RoleController {
-  constructor(protected readonly roleService: RoleService) {}
+  constructor(private readonly roleService: RoleService) {}
 
   @Get(':roleId')
   @Admin()

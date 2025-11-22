@@ -1,5 +1,5 @@
+import { UserRoleOptions } from '@libs/data/type/user-role.enum';
 import { CustomDecorator, SetMetadata } from '@nestjs/common';
-import { UserRoleOptions } from '../../data/type';
 
 export const ROLES_KEY = 'roles';
 interface ConfigInterface {

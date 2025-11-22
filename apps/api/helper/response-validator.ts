@@ -20,7 +20,9 @@ interface OptionsInterface {
 }
 
 @Injectable()
-export class ValidateDtoInterceptor<T> implements NestInterceptor {
+export class ValidateDtoInterceptor<T extends object>
+  implements NestInterceptor
+{
   constructor(
     private readonly classType: Type<T>,
     private readonly options?: OptionsInterface,
@@ -49,7 +51,7 @@ export class ValidateDtoInterceptor<T> implements NestInterceptor {
         const response = plainToClass(this.classType, data);
         const objectsToValidate = isArray ? (response as Array<T>) : [response];
         for (const objectToValidate of objectsToValidate) {
-          const errors = await validate(objectToValidate as unknown as object, {
+          const errors = await validate(objectToValidate, {
             forbidUnknownValues,
           });
           if (errors.length > 0) {
