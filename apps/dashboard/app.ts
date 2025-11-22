@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { DashboardComponent } from './pages/dashboard.component';
+import { RouterModule, RouterOutlet } from '@angular/router';
+import { GlobalErrorComponent } from './components/global-error.component';
 
 @Component({
-  imports: [DashboardComponent, RouterModule],
+  imports: [GlobalErrorComponent, RouterOutlet, RouterModule],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.css',

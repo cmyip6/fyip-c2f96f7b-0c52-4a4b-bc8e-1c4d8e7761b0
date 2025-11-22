@@ -15,7 +15,7 @@
         "browser": "apps/dashboard/main.ts",
         "polyfills": ["zone.js"],
         "tsConfig": "apps/dashboard/tsconfig.app.json",
-        "styles": ["apps/dashboard/app.css"],
+        "styles": ["apps/dashboard/styles.css"],
         "scripts": []
       },
       "configurations": {

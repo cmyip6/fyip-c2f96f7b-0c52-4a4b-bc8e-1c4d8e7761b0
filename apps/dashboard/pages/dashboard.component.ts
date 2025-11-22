@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TaskApiService } from '../api-services/task-service';
+import { TaskApiService } from '../api-services/task.service';
 import { TaskCardComponent } from '../components/task-card.component';
 import { GetTaskResponseInterface } from '../../../libs/data/type';
 

@@ -1,14 +1,10 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { GetTaskResponseInterface } from '../../../libs/data/type';
+import { BaseApiService } from './base-api.service';
 
 @Injectable({ providedIn: 'root' })
-export class TaskApiService {
-  private http = inject(HttpClient);
-  private apiUrl = '/api';
-
-  // --- Tasks ---
+export class TaskApiService extends BaseApiService {
   getTasks(): Observable<GetTaskResponseInterface[]> {
     return this.http.get<GetTaskResponseInterface[]>(`${this.apiUrl}/tasks`);
   }

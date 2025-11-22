@@ -7,9 +7,11 @@
     "libs/*"
   ],
   "scripts": {
-    "start:api": "nx serve api",
-    "start:dashboard": "nx serve dashboard",
+    "config:env": "node tools/set-env.ts",
+    "start:api": "npm run config:env && nx serve api",
+    "start:dashboard": "npm run config:env && npx nx serve dashboard",
     "postinstall": "nx reset",
+    "install-all": "npm i && cd apps/api && npm i && cd apps/dashboard && npm i && cd ../../",
     "setup": "docker compose --env-file .env -f apps/api/database/docker/docker-compose.yml up -d",
     "setdown": "docker compose --env-file .env -f apps/api/database/docker/docker-compose.yml down",
     "typeorm": "ts-node --project apps/api/database/docker/tsconfig.typeorm.json node_modules/typeorm/cli.js -d apps/api/database/docker/ormconfig.ts",

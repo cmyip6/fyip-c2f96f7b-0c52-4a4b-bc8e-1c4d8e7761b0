@@ -10,6 +10,7 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() dto: LoginDto): Promise<AuthUserResponseDto> {
+    this.logger.verbose('Request login received' + dto.username);
     return await this.authService.login(dto);
   }
 }

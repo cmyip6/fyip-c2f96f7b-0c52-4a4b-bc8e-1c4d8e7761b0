@@ -49,10 +49,12 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
-  const port = process.env.API_PORT || 3000;
+  const port = process.env.API_PORT || 4200;
+  const host = process.env.API_HOST || 'localhost';
+  const protocol = process.env.API_PROTOCOL || 'http';
   await app.listen(port);
 
-  Logger.log(`Application is running on: http://localhost:${port}/api`);
+  Logger.log(`Application is running on: ${protocol}://${host}:${port}/api`);
 }
 
 bootstrap();
