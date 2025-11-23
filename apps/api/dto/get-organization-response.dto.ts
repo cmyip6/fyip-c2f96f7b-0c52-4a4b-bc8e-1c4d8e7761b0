@@ -11,4 +11,8 @@ export class GetOrganizationResponseDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  role: string;
 }

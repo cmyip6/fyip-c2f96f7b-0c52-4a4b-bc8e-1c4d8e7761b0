@@ -14,7 +14,7 @@
     "install-all": "npm i && cd apps/api && npm i && cd apps/dashboard && npm i && cd ../../",
     "api:db:setup": "docker compose --env-file .env -f apps/api/database/docker/docker-compose.yml up -d",
     "api:db:setdown": "docker compose --env-file .env -f apps/api/database/docker/docker-compose.yml down",
-    "typeorm": "ts-node --project apps/api/database/docker/tsconfig.typeorm.json node_modules/typeorm/cli.js -d apps/api/database/docker/ormconfig.ts",
+    "typeorm": "ts-node -r tsconfig-paths/register --project apps/api/database/docker/tsconfig.typeorm.json node_modules/typeorm/cli.js -d apps/api/database/docker/ormconfig.ts",
     "migration:generate": "npm run typeorm -- migration:generate",
     "migration:run": "npm run typeorm -- migration:run",
     "migration:revert": "npm run typeorm -- migration:revert"

@@ -10,7 +10,8 @@ import { AuthImptService } from '@api/modules/auth-impt/auth-impt.service';
 import {
   CHECK_POLICIES_KEY,
   NO_POLICIES_KEY,
-} from '@libs/auth/decorator/policy-guard.decorator';
+} from '@api/decorator/policy-guard.decorator';
+import { PolicyHandlerType } from '@api/policies/task.policy';
 import { getEntityValue } from '@api/helper/extract-path-id';
 
 export const AUTHORIZATION_SERVICE = 'AUTHORIZATION_SERVICE';
@@ -35,8 +36,10 @@ export class PoliciesGuard implements CanActivate {
 
     this.logger.verbose('Get check policies');
     const policyHandlers =
-      this.reflector.get<string[]>(CHECK_POLICIES_KEY, context.getHandler()) ||
-      [];
+      this.reflector.get<PolicyHandlerType[]>(
+        CHECK_POLICIES_KEY,
+        context.getHandler(),
+      ) || [];
 
     const request = context.switchToHttp().getRequest();
 
@@ -44,11 +47,13 @@ export class PoliciesGuard implements CanActivate {
     const requestUser = request.user;
 
     this.logger.verbose('Checking for each defined path');
-    for (const path of policyHandlers) {
-      const taskId = getEntityValue(request, path);
+    for (const { permission, entityType, path } of policyHandlers) {
+      const entityId = getEntityValue(request, path);
       const res = await this.authImptService.userIsAuthorized(
         requestUser.id,
-        taskId,
+        entityType,
+        permission,
+        entityId,
       );
 
       if (res !== true) {

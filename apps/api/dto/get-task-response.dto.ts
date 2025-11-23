@@ -5,24 +5,14 @@ import {
   IsOptional,
   ValidateNested,
   IsUUID,
-  IsDate,
+  IsArray,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { GetUserReponseDto } from './get-user-response.dto';
-import { TaskEntity } from '@api/models/tasks.entity';
 import { BasePropertiesDto } from './base-properties.dto';
+import { PaginationResponseDto } from './pagination.dto';
 
 export class GetTaskResponseDto extends BasePropertiesDto {
-  constructor(task: TaskEntity) {
-    super();
-    this.id = task.id;
-    this.title = task.title;
-    this.description = task.description;
-    this.status = task.status;
-    this.deletedAt = task.deletedAt;
-    this.deletedBy = task.deletedBy;
-  }
-
   @IsNumber()
   id: number;
 
@@ -38,19 +28,22 @@ export class GetTaskResponseDto extends BasePropertiesDto {
   @IsOptional()
   status?: string;
 
-  @IsOptional()
-  @IsDate()
-  @Type(() => Date)
-  deletedAt?: Date;
-
-  @IsOptional()
-  @IsUUID()
-  deletedBy?: string;
-
   @IsUUID()
   userId: string;
+
   @Type(() => GetUserReponseDto)
   @IsOptional()
   @ValidateNested()
   user?: GetUserReponseDto;
+}
+
+export class GetTaskResponsePaginatedDto {
+  @Type(() => GetTaskResponseDto)
+  @ValidateNested({ each: true })
+  @IsArray()
+  data: GetTaskResponseDto[];
+
+  @Type(() => PaginationResponseDto)
+  @ValidateNested()
+  metadata: PaginationResponseDto;
 }

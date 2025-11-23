@@ -20,6 +20,10 @@ export const getEntityValue = (
       throw new BadRequestException(`Path "${path}" is invalid!`);
     }
 
+    if (typeof request === 'number') {
+      return request;
+    }
+
     if (typeof request === 'string' && !Number.isNaN(parseInt(request))) {
       return parseInt(request);
     }

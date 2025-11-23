@@ -17,6 +17,7 @@ import { TaskEntity } from './models/tasks.entity';
 import { UserEntity } from './models/users.entity';
 import { RoleEntity } from './models/roles.entity';
 import { PermissionEntity } from './models/permissions.entity';
+import { OrganizationRelationEntity } from './models/organization-relation.entity';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -29,6 +30,7 @@ import { PermissionEntity } from './models/permissions.entity';
             UserEntity,
             RoleEntity,
             PermissionEntity,
+            OrganizationRelationEntity,
           ],
         });
       },

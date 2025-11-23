@@ -5,7 +5,7 @@
     "types": []
   },
   "files": ["main.ts", "app.config.ts"],
-  "include": ["*/*.d.ts"],
+  "include": ["./**/*.ts"],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,

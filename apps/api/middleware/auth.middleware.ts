@@ -47,6 +47,6 @@ export class AuthMiddleware implements NestMiddleware {
   }
 
   private validateUserStructure(user: AuthUserInterface): boolean {
-    return Boolean(user.id && user.email && user.role && user.tokenExpiry);
+    return Boolean(user.id && user.email && user.tokenExpiry);
   }
 }

@@ -2,7 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthApiService } from '../api-services/auth.service';
+import { AuthApiService } from '../api-services/auth-api.service';
+import { ErrorService } from '../services/error.service';
+import { SessionService } from '../services/session.service';
+import { switchMap, tap } from 'rxjs';
+import { OrganizationApiService } from '../api-services/organization-api.service';
 
 @Component({
   selector: 'app-login',
@@ -16,6 +20,7 @@ import { AuthApiService } from '../api-services/auth.service';
         class="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"
       ></div>
 
+      <!-- Display API Errors -->
       <div *ngIf="error()" class="fixed top-5 right-5 z-50 animate-bounce">
         <div
           class="bg-[#2A2F35] border-l-[6px] border-red-900/80 shadow-[0_8px_20px_rgba(0,0,0,0.8)] rounded-sm ring-1 ring-white/5 p-4 flex items-center gap-3"
@@ -31,6 +36,7 @@ import { AuthApiService } from '../api-services/auth.service';
       <div
         class="w-full max-w-md bg-[#2A2F35] relative z-10 shadow-[0_20px_50px_rgba(0,0,0,0.9)] rounded-sm ring-1 ring-white/10 p-8 sm:p-12 overflow-hidden border-t-4 border-amber-700/50"
       >
+        <!-- Decorative Rivets -->
         <div
           class="absolute top-3 left-3 w-1.5 h-1.5 rounded-full bg-zinc-700 shadow-[inset_0_1px_1px_rgba(0,0,0,1)]"
         ></div>
@@ -80,6 +86,7 @@ import { AuthApiService } from '../api-services/auth.service';
           (ngSubmit)="onSubmit()"
           class="flex flex-col gap-6"
         >
+          <!-- Username -->
           <div class="space-y-2 group">
             <label
               for="username"
@@ -103,6 +110,7 @@ import { AuthApiService } from '../api-services/auth.service';
             </div>
           </div>
 
+          <!-- Password -->
           <div class="space-y-2 group">
             <label
               for="password"
@@ -195,8 +203,11 @@ import { AuthApiService } from '../api-services/auth.service';
 })
 export class LoginComponent {
   private fb = inject(FormBuilder);
-  private api = inject(AuthApiService);
+  private authApi = inject(AuthApiService);
+  private orgApi = inject(OrganizationApiService);
   private router = inject(Router);
+  private errorService = inject(ErrorService);
+  private session = inject(SessionService);
 
   loginForm = this.fb.group({
     username: ['', Validators.required],
@@ -208,32 +219,44 @@ export class LoginComponent {
 
   onSubmit() {
     if (this.loginForm.invalid) return;
-
-    const { username, password } = this.loginForm.value;
-
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.api.login(username!, password!).subscribe({
-      next: (response) => {
-        console.log('Login Success, Token:', response.token);
+    const { username, password } = this.loginForm.value;
 
-        const d = new Date();
-        d.setTime(d.getTime() + 1 * 24 * 60 * 60 * 1000);
-        const expires = 'expires=' + d.toUTCString();
-        document.cookie = `token=${response.token};${expires};path=/`;
+    this.authApi
+      .login(username!, password!)
+      .pipe(
+        tap((response) => {
+          const d = new Date();
+          d.setTime(d.getTime() + 1 * 24 * 60 * 60 * 1000);
+          document.cookie = `token=${response.token};expires=${d.toUTCString()};path=/`;
+          this.session.setUser(response.user);
+        }),
+        switchMap(() => this.orgApi.getOrganizations()),
+      )
+      .subscribe({
+        next: (orgs) => {
+          if (orgs.length === 0) {
+            this.errorService.showError(
+              403,
+              'No organizations found. Contact your admin.',
+            );
+            this.isLoading.set(false);
+            return;
+          }
 
-        console.log('Redirecting to login');
-        this.router.navigate(['/dashboard']);
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        const msg = err.error?.message || 'Server unavailable';
-        this.error.set(msg);
-        this.isLoading.set(false);
-
-        setTimeout(() => this.error.set(null), 3000);
-      },
-    });
+          this.session.setOrganizations(orgs);
+          this.session.selectOrganization(orgs[0].id);
+          this.router.navigate(['/dashboard']);
+          this.isLoading.set(false);
+        },
+        error: (err) => {
+          const msg = err.error?.message || 'Authentication Failed';
+          this.error.set(msg);
+          this.isLoading.set(false);
+          setTimeout(() => this.error.set(null), 3000);
+        },
+      });
   }
 }

@@ -17,6 +17,7 @@ import { CreateUserDto } from '@api/dto/create-user.dto';
 import { AuthUserDto } from '@api/dto/auth-user.dto';
 import { RefreshTokenDto } from '@api/dto/refresh-token.dto';
 import { UserEntity } from '@api/models/users.entity';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class UserService {
@@ -34,7 +35,7 @@ export class UserService {
   async findUserById(userId: string): Promise<UserEntity | null> {
     return await this.repoUser.findOne({
       where: { id: userId },
-      relations: { role: true },
+      relations: { roles: true },
     });
   }
 
@@ -75,17 +76,20 @@ export class UserService {
       roleId,
     });
 
-    return ret;
+    return plainToInstance(GetUserReponseDto, ret);
   }
 
   async getUserById(
     userId: string,
     throwException = false,
-  ): Promise<UserEntity> {
+  ): Promise<GetUserReponseDto> {
     this.logger.verbose('Getting user by id:' + userId);
-    const user = await this.repoUser.findOne({ where: { id: userId } });
+    const user = await this.repoUser.findOne({
+      where: { id: userId },
+      relations: { roles: { organization: true } },
+    });
     if (!user && throwException) throw new NotFoundException('User not found');
-    return user;
+    return plainToInstance(GetUserReponseDto, user);
   }
 
   async refreshAuthToken(dto: RefreshTokenDto): Promise<AuthUserDto> {

@@ -2,14 +2,14 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  JoinColumn,
   Unique,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { BaseEntity } from './base.entity';
-import { PropertyLength } from '@libs/data/const/length.const';
 import { RoleEntity } from './roles.entity';
-import { OrganizationEntity } from './organizations.entity';
+import { PropertyLength } from '@libs/data/const/length.const';
+import { UserTypeOptions } from '@libs/data/type/user-type.enum';
 
 @Entity('USERS')
 @Unique('USER_USERNAME_UNIQUE', ['username'])
@@ -20,6 +20,9 @@ export class UserEntity extends BaseEntity {
   @Column({ length: PropertyLength.TITLE, type: 'varchar' })
   username: string;
 
+  @Column({ length: PropertyLength.NAME, type: 'varchar' })
+  name: string;
+
   @Column({ length: PropertyLength.TITLE, type: 'varchar' })
   email: string;
 
@@ -29,25 +32,30 @@ export class UserEntity extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   token: string;
 
-  @ManyToOne(() => RoleEntity, (roles) => roles.users, { nullable: true })
-  @JoinColumn({
-    name: 'ROLE_ID',
-    referencedColumnName: 'id',
-    foreignKeyConstraintName: 'USER_ROLE_CONSTRAINT',
+  @Column({
+    name: 'USER_TYPE',
+    type: 'varchar',
+    nullable: false,
+    default: UserTypeOptions.MODULE_USER,
   })
-  role: RoleEntity;
-  @Column({ name: 'ROLE_ID', type: Number, nullable: true })
-  roleId: number;
+  userType: UserTypeOptions;
 
-  @ManyToOne(() => OrganizationEntity, (org) => org.employees, {
+  @ManyToMany(() => RoleEntity, (role) => role.users, {
+    cascade: false,
     nullable: true,
   })
-  @JoinColumn({
-    name: 'ORGANIZATION_ID',
-    referencedColumnName: 'id',
-    foreignKeyConstraintName: 'USER_ORGANIZATION_CONSTRAINT',
+  @JoinTable({
+    name: 'USER_ROLES',
+    joinColumn: {
+      name: 'USER_ID',
+      referencedColumnName: 'id',
+      foreignKeyConstraintName: 'USER_ROLES_USER_FK',
+    },
+    inverseJoinColumn: {
+      name: 'ROLE_ID',
+      referencedColumnName: 'id',
+      foreignKeyConstraintName: 'USER_ROLES_ROLE_FK',
+    },
   })
-  organization: OrganizationEntity;
-  @Column({ name: 'ORGANIZATION_ID', type: Number, nullable: true })
-  organizationId: number;
+  roles: RoleEntity[];
 }

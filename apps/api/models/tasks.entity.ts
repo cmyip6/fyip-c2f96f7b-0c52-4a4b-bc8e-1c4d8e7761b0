@@ -3,14 +3,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { UserEntity } from './users.entity';
 import { PropertyLength } from '@libs/data/const/length.const';
 import { TaskStatusOptions } from '@libs/data/type/task-status.enum';
-import { PermissionEntity } from './permissions.entity';
+import { OrganizationEntity } from './organizations.entity';
 
 @Entity('TASKS')
 export class TaskEntity extends BaseEntity {
@@ -43,10 +42,17 @@ export class TaskEntity extends BaseEntity {
     referencedColumnName: 'id',
     foreignKeyConstraintName: 'TASK_USER_CONSTRAINT',
   })
-  User: UserEntity;
+  user: UserEntity;
   @Column({ name: 'USER_ID', type: 'varchar', nullable: false })
   userId: string;
 
-  @OneToMany(() => PermissionEntity, (permission) => permission.task)
-  permissions: PermissionEntity[];
+  @ManyToOne(() => OrganizationEntity, { nullable: false })
+  @JoinColumn({
+    name: 'ORGANIZATION_ID',
+    referencedColumnName: 'id',
+    foreignKeyConstraintName: 'TASK_ORGANIZATION_CONSTRAINT',
+  })
+  organization: OrganizationEntity;
+  @Column({ name: 'ORGANIZATION_ID', type: 'varchar', nullable: false })
+  organizationId: number;
 }

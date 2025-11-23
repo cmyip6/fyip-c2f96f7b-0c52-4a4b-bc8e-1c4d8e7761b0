@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthUserInterface } from '@libs/data/type/auth-user.interface';
 
 @Component({
   selector: 'app-not-found',
@@ -62,7 +63,7 @@ export class NotFoundComponent implements OnInit {
       return;
     }
 
-    const expiry = payload.tokenExpiry || payload.exp;
+    const expiry = payload.tokenExpiry;
 
     if (!expiry) {
       this.redirectToLogin();
@@ -93,7 +94,7 @@ export class NotFoundComponent implements OnInit {
     return match ? match[2] : null;
   }
 
-  private decodeJwt(token: string): any {
+  private decodeJwt(token: string): AuthUserInterface {
     try {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');

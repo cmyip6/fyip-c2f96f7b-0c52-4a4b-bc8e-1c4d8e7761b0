@@ -1,3 +1,4 @@
+import { EntityTypeOptions } from '@libs/data/type/entity-type.enum';
 import { UserRoleOptions } from '@libs/data/type/user-role.enum';
 import { CustomDecorator, SetMetadata } from '@nestjs/common';
 
@@ -23,15 +24,35 @@ const getRolesList = (config?: ConfigInterface): UserRoleOptions[] => {
 
 // assuming role hierarchy Owner > Admin > Viewer
 
-export const Viewer = (): CustomDecorator<string> =>
-  SetMetadata(ROLES_KEY, getRolesList());
-export const Admin = (): CustomDecorator<string> =>
-  SetMetadata(ROLES_KEY, getRolesList({ [UserRoleOptions.VIEWER]: false }));
-export const Owner = (): CustomDecorator<string> =>
-  SetMetadata(
-    ROLES_KEY,
-    getRolesList({
+export type RoleGuardHandlerType = {
+  path: string;
+  entityType: EntityTypeOptions;
+  roles: UserRoleOptions[];
+};
+
+export const Viewer = (
+  path: string,
+  entityType = EntityTypeOptions.ORGANIZATION,
+): CustomDecorator<string> =>
+  SetMetadata(ROLES_KEY, { roles: getRolesList(), entityType, path });
+export const Admin = (
+  path: string,
+  entityType = EntityTypeOptions.ORGANIZATION,
+): CustomDecorator<string> =>
+  SetMetadata(ROLES_KEY, {
+    roles: getRolesList({ [UserRoleOptions.VIEWER]: false }),
+    entityType,
+    path,
+  });
+export const Owner = (
+  path: string,
+  entityType = EntityTypeOptions.ORGANIZATION,
+): CustomDecorator<string> =>
+  SetMetadata(ROLES_KEY, {
+    roles: getRolesList({
       [UserRoleOptions.ADMIN]: false,
       [UserRoleOptions.VIEWER]: false,
     }),
-  );
+    entityType,
+    path,
+  });

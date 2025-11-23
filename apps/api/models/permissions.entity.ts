@@ -6,27 +6,22 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { TaskEntity } from './tasks.entity';
 import { BaseEntity } from './base.entity';
 import { RoleEntity } from './roles.entity';
+import { EntityTypeOptions } from '@libs/data/type/entity-type.enum';
+import { PermissionLevelOptions } from '@libs/data/type/permission-level.enum';
 
 @Entity('PERMISSIONS')
-@Unique('TASK_ROLE_UNIQUE', ['task', 'role'])
+@Unique('ENTITY_PERMISSION_ROLE_UNIQUE', ['entityType', 'permission', 'roleId'])
 export class PermissionEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToOne(() => TaskEntity, (task) => task.permissions, {
-    nullable: false,
-  })
-  @JoinColumn({
-    name: 'TASK_ID',
-    referencedColumnName: 'id',
-    foreignKeyConstraintName: 'PERMISSION_TASK_CONSTRAINT',
-  })
-  task: TaskEntity;
-  @Column({ name: 'TASK_ID', type: Number, nullable: false })
-  taskId: number;
+  @Column({ name: 'ENTITY_TYPE', type: 'varchar', nullable: false })
+  entityType: EntityTypeOptions;
+
+  @Column({ name: 'PERMISSION', type: 'varchar', nullable: false })
+  permission: PermissionLevelOptions;
 
   @ManyToOne(() => RoleEntity, (role) => role.permissions, {
     nullable: false,
@@ -37,6 +32,6 @@ export class PermissionEntity extends BaseEntity {
     foreignKeyConstraintName: 'PERMISSION_ROLE_CONSTRAINT',
   })
   role: RoleEntity;
-  @Column({ name: 'ROLE_ID', type: Number, nullable: false })
+  @Column({ name: 'ROLE_ID', type: 'int', nullable: false })
   roleId: number;
 }

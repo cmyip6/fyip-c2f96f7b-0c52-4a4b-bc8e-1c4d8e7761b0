@@ -1,10 +1,21 @@
-import { GetTaskResponseDto } from '@api/dto/get-task-response.dto';
+import { CreateTaskResponseDto } from '@api/dto/create-task-response.dto';
+import { CreateTaskDto } from '@api/dto/create-task.dto';
+import {
+  GetTaskResponseDto,
+  GetTaskResponsePaginatedDto,
+} from '@api/dto/get-task-response.dto';
+import { PaginationDto } from '@api/dto/pagination.dto';
+import { UpdateTaskDto } from '@api/dto/update-task.dto';
+import { PermissionEntity } from '@api/models/permissions.entity';
 import { TaskEntity } from '@api/models/tasks.entity';
 import { UserEntity } from '@api/models/users.entity';
+import { AuthUserInterface } from '@libs/data/type/auth-user.interface';
+import { EntityTypeOptions } from '@libs/data/type/entity-type.enum';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
-import { FindManyOptions, Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
+import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class TaskService {
@@ -17,32 +28,130 @@ export class TaskService {
     private readonly taskRepo: Repository<TaskEntity>,
   ) {}
 
+  @Transactional()
+  async createOne(
+    dto: CreateTaskDto,
+    user: AuthUserInterface,
+  ): Promise<CreateTaskResponseDto> {
+    const createdTask = await this.taskRepo.save({
+      ...dto,
+      user: { id: user.id },
+    });
+    return plainToInstance(CreateTaskResponseDto, createdTask);
+  }
+
+  @Transactional()
+  async updateOne(
+    taskId: number,
+    dto: UpdateTaskDto,
+    user: AuthUserInterface,
+  ): Promise<DeleteResult> {
+    const deleteResult = await this.taskRepo.update(taskId, {
+      ...dto,
+      updatedBy: user.id,
+      updatedAt: new Date(),
+    });
+    return deleteResult;
+  }
+
+  @Transactional()
+  async deleteOne(
+    taskId: number,
+    user: AuthUserInterface,
+  ): Promise<DeleteResult> {
+    const deleteResult = await this.taskRepo.update(taskId, {
+      deletedAt: new Date(),
+      deletedBy: user.id,
+    });
+    return deleteResult;
+  }
+
   async getOneById(taskId: number): Promise<GetTaskResponseDto> {
     const taskDb = await this.taskRepo.findOne({ where: { id: taskId } });
     return plainToInstance(GetTaskResponseDto, taskDb);
   }
 
-  async getAll(userId: string): Promise<GetTaskResponseDto[]> {
-    const foundUser = await this.userRepo.findOneBy({ id: userId });
+  async getAll(
+    userId: string,
+    organizationId: number,
+    pagination: PaginationDto,
+  ): Promise<GetTaskResponsePaginatedDto> {
+    const foundUser = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: { roles: true },
+    });
     if (!foundUser) {
       throw new BadRequestException('Invalid user id: ' + userId);
     }
+    const role = foundUser.roles?.find(
+      (el) => el.organizationId === organizationId,
+    );
 
-    let condition: FindManyOptions<TaskEntity> = {
-      where: [{ createdBy: userId }],
-    };
-
-    if (foundUser.roleId) {
-      condition = {
-        where: [
-          { createdBy: userId },
-          { permissions: { roleId: foundUser.roleId } },
-        ],
-      };
+    if (!role) {
+      throw new BadRequestException(
+        'User does not have a role in the organization.',
+      );
     }
+    const { pageSize, pageNumber } = pagination;
+    const ownerSubQuery = this.taskRepo
+      .createQueryBuilder()
+      .subQuery()
+      .select(
+        `
+          jsonb_build_object(
+            'id', "OU"."id",
+            'name', "OU"."name",
+            'email', "OU"."email"
+          )
+         `,
+      )
+      .from(UserEntity, 'OU')
+      .where('OU.id = T.userId');
 
-    const tasksDb = await this.taskRepo.find(condition);
+    const permissionSubQuery = this.taskRepo
+      .createQueryBuilder()
+      .subQuery()
+      .select('1')
+      .from(PermissionEntity, 'P')
+      .innerJoin(UserEntity, 'U', 'U.id = T.userId')
+      .where('P.entityType = :entityType', {
+        entityType: EntityTypeOptions.TASK,
+      })
+      .andWhere('P.roleId = :roleId', { roleId: role.id });
 
-    return tasksDb.map((taskDb) => plainToInstance(GetTaskResponseDto, taskDb));
+    const getTaskQuery = this.taskRepo
+      .createQueryBuilder('T')
+      .select([
+        'T.id AS "id"',
+        'T.title AS "title"',
+        'T.description AS "description"',
+        'T.userId AS "userId"',
+        'T.status AS "status"',
+      ])
+      .addSelect(`(${ownerSubQuery.getQuery()})`, 'user')
+      .where(`EXISTS (${permissionSubQuery.getQuery()})`)
+      .andWhere('T.organizationId = :organizationId', { organizationId })
+      .andWhere('T.deletedAt IS NULL')
+      .setParameters(permissionSubQuery.getParameters());
+
+    const countQuery = getTaskQuery.clone().getCount();
+
+    const tasksDb = await getTaskQuery
+      .take(pageSize)
+      .skip(pageSize * (pageNumber - 1))
+      .getRawMany();
+
+    const count = await countQuery;
+
+    return {
+      data: tasksDb.map((taskDb) =>
+        plainToInstance(GetTaskResponseDto, taskDb),
+      ),
+      metadata: {
+        totalRecords: count,
+        pageSize,
+        pageNumber,
+      },
+    };
   }
 }

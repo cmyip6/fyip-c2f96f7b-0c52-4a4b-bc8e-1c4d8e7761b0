@@ -52,8 +52,8 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
     exception.statusCode = statusCode;
     exception.url = req.originalUrl;
     exception.method = req.method;
-    exception.userId = (req as any).user?.id;
-    exception.userEmail = (req as any).user?.email;
+    exception.userId = req.user?.id;
+    exception.userEmail = req.user?.email;
 
     const stack = exception instanceof Error ? exception.stack : undefined;
 
@@ -62,7 +62,7 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
       message,
       path: req.url,
       method: req.method,
-      user: (req as any).user?.id ?? 'Anonymous',
+      user: req.user?.id ?? 'Anonymous',
       stack,
     });
 

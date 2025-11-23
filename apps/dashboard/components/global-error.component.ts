@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ErrorService } from '../api-services/error.service';
+import { ErrorService } from '../services/error.service';
 import { ToastComponent } from './toast.component';
 
 @Component({

@@ -1,20 +1,27 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TaskApiService } from '../api-services/task.service';
+import { TaskApiService } from '../api-services/task-api.service';
+import { SessionService } from '../services/session.service';
 import { TaskCardComponent } from '../components/task-card.component';
-import { TopBarComponent } from '../components/top-bar.component';
-import { GetTaskResponseInterface } from '../../../libs/data/type/get-task-response.interface';
+import { TopBarComponent } from '../components/topBar/top-bar.component';
+import { ConfirmationModalComponent } from '../components/modals/confirmation-modal.component';
+import { GetTaskResponseInterface } from '@libs/data/type/get-task-response.interface';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, TaskCardComponent, TopBarComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TaskCardComponent,
+    TopBarComponent,
+    ConfirmationModalComponent,
+  ],
   template: `
     <div
       class="min-h-screen bg-[#1a1d21] font-sans relative selection:bg-amber-900 selection:text-white"
     >
-      <!-- Background Texture -->
       <div
         class="fixed inset-0 opacity-5 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"
       ></div>
@@ -34,7 +41,8 @@ import { GetTaskResponseInterface } from '../../../libs/data/type/get-task-respo
               Active Operations
             </h1>
             <p class="text-gray-500 text-xs font-mono mt-2 tracking-wider ml-5">
-              SECTOR 7 // TASK ALLOCATION
+              SECTOR: {{ session.currentOrg()?.name || 'UNKNOWN' }} // TASK
+              ALLOCATION
             </p>
           </div>
 
@@ -57,9 +65,8 @@ import { GetTaskResponseInterface } from '../../../libs/data/type/get-task-respo
         </div>
 
         <!-- Task Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <div *ngFor="let task of tasks()" class="relative group">
-            <!-- Decorative Corner Markers for Grid Items -->
             <div
               class="absolute -top-1 -left-1 w-2 h-2 border-t border-l border-gray-600/30 group-hover:border-amber-600/50 transition-colors z-0"
             ></div>
@@ -71,7 +78,7 @@ import { GetTaskResponseInterface } from '../../../libs/data/type/get-task-respo
               class="relative z-10 block h-full"
               [task]="task"
               (statusChange)="updateStatus(task.id, $event)"
-              (delete)="deleteTask(task.id)"
+              (delete)="initiateDelete(task.id)"
             >
             </app-task-card>
           </div>
@@ -80,7 +87,7 @@ import { GetTaskResponseInterface } from '../../../libs/data/type/get-task-respo
         <!-- Empty State -->
         <div
           *ngIf="tasks().length === 0"
-          class="py-20 text-center border-2 border-dashed border-white/5 rounded-sm bg-black/20"
+          class="py-20 text-center border-2 border-dashed border-white/5 rounded-sm bg-black/20 mb-8"
         >
           <div class="inline-block p-4 rounded-full bg-white/5 mb-4">
             <svg
@@ -101,7 +108,70 @@ import { GetTaskResponseInterface } from '../../../libs/data/type/get-task-respo
           <h3 class="text-gray-400 font-mono text-sm uppercase tracking-widest">
             No Active Directives
           </h3>
-          <p class="text-gray-600 text-xs mt-1">System awaiting input</p>
+          <p class="text-gray-600 text-xs mt-1">
+            Unit '{{ session.currentOrg()?.name }}' awaiting input
+          </p>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div
+          *ngIf="tasks().length > 0 || pageNumber() > 1"
+          class="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-white/5 pt-6 font-mono"
+        >
+          <div class="text-[10px] uppercase tracking-widest text-gray-500">
+            Displaying page
+            <span class="text-amber-500 font-bold">{{ pageNumber() }}</span> of
+            <span class="text-gray-400">{{ totalPages() }}</span>
+            <span class="mx-2">|</span>
+            Total Records:
+            <span class="text-gray-400">{{ totalRecords() }}</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button
+              (click)="changePage(pageNumber() - 1)"
+              [disabled]="pageNumber() <= 1"
+              class="px-4 py-2 bg-black/20 border border-white/10 hover:border-amber-600/50 text-gray-400 hover:text-amber-500 disabled:opacity-30 disabled:cursor-not-allowed rounded-sm text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="w-3 h-3"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.75 19.5 8.25 12l7.5-7.5"
+                />
+              </svg>
+              PREV
+            </button>
+
+            <button
+              (click)="changePage(pageNumber() + 1)"
+              [disabled]="pageNumber() >= totalPages()"
+              class="px-4 py-2 bg-black/20 border border-white/10 hover:border-amber-600/50 text-gray-400 hover:text-amber-500 disabled:opacity-30 disabled:cursor-not-allowed rounded-sm text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2"
+            >
+              NEXT
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="w-3 h-3"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </main>
 
@@ -110,17 +180,14 @@ import { GetTaskResponseInterface } from '../../../libs/data/type/get-task-respo
         *ngIf="showCreateModal"
         class="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
-        <!-- Backdrop -->
         <div
           class="absolute inset-0 bg-black/80 backdrop-blur-sm"
           (click)="showCreateModal = false"
         ></div>
 
-        <!-- Modal Content -->
         <div
           class="bg-[#2A2F35] border border-white/10 w-full max-w-md relative z-10 shadow-2xl rounded-sm"
         >
-          <!-- Modal Header -->
           <div
             class="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-black/20"
           >
@@ -150,7 +217,6 @@ import { GetTaskResponseInterface } from '../../../libs/data/type/get-task-respo
             </button>
           </div>
 
-          <!-- Modal Body -->
           <div class="p-6 space-y-5">
             <div class="space-y-2">
               <label
@@ -178,7 +244,6 @@ import { GetTaskResponseInterface } from '../../../libs/data/type/get-task-respo
             </div>
           </div>
 
-          <!-- Modal Footer -->
           <div
             class="px-6 py-4 border-t border-white/10 flex justify-end gap-3 bg-black/20"
           >
@@ -197,42 +262,103 @@ import { GetTaskResponseInterface } from '../../../libs/data/type/get-task-respo
           </div>
         </div>
       </div>
+
+      <!-- DELETE CONFIRMATION MODAL -->
+      <app-confirmation-modal
+        *ngIf="pendingDeleteId()"
+        title="Purge Warning"
+        message="You are about to permanently delete this directive. This operation cannot be reversed."
+        (confirm)="confirmDelete()"
+        (cancel)="pendingDeleteId.set(null)"
+      >
+      </app-confirmation-modal>
     </div>
   `,
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent {
   private api = inject(TaskApiService);
-  tasks = signal<GetTaskResponseInterface[]>([]);
+  session = inject(SessionService);
 
-  // Modal State
+  tasks = signal<GetTaskResponseInterface[]>([]);
+  pageNumber = signal(1);
+  pageSize = signal(9);
+  totalRecords = signal(0);
+  pendingDeleteId = signal<number | null>(null);
+  totalPages = computed(() => Math.ceil(this.totalRecords() / this.pageSize()));
+
   showCreateModal = false;
   newTask = { title: '', description: '' };
 
-  ngOnInit() {
-    this.loadTasks();
-  }
+  constructor() {
+    effect(() => {
+      const orgId = this.session.selectedOrgId();
+      const page = this.pageNumber();
+      const size = this.pageSize();
 
-  loadTasks() {
-    this.api.getTasks().subscribe((tasks) => this.tasks.set(tasks));
-  }
-
-  createTask() {
-    if (!this.newTask.title) return;
-
-    this.api.createTask(this.newTask).subscribe(() => {
-      this.loadTasks();
-      this.showCreateModal = false;
-      this.newTask = { title: '', description: '' };
+      if (orgId) {
+        this.loadTasks(orgId, page, size);
+      } else {
+        this.tasks.set([]);
+      }
     });
   }
 
-  updateStatus(id: number, status: any) {
-    this.api.updateTaskStatus(id, status).subscribe(() => this.loadTasks());
+  loadTasks(orgId: number, page: number, size: number) {
+    this.api.getTasks(orgId, page, size).subscribe((res) => {
+      this.tasks.set(res.data);
+      this.totalRecords.set(res.metadata.totalRecords);
+      if (page > 1 && res.data.length === 0) {
+        this.pageNumber.set(page - 1);
+      }
+    });
   }
 
-  deleteTask(id: number) {
-    if (confirm('Are you sure you want to purge this directive?')) {
-      this.api.deleteTask(id).subscribe(() => this.loadTasks());
+  changePage(newPage: number) {
+    if (newPage >= 1 && newPage <= this.totalPages()) {
+      this.pageNumber.set(newPage);
+    }
+  }
+
+  createTask() {
+    const orgId = this.session.selectedOrgId();
+    if (!this.newTask.title || !orgId) return;
+
+    this.api
+      .createTask({
+        ...this.newTask,
+        organizationId: orgId,
+      })
+      .subscribe(() => {
+        this.loadTasks(orgId, this.pageNumber(), this.pageSize());
+        this.showCreateModal = false;
+        this.newTask = { title: '', description: '' };
+      });
+  }
+
+  updateStatus(id: number, status: string) {
+    const orgId = this.session.selectedOrgId();
+    if (orgId) {
+      this.api
+        .updateTaskStatus(id, status)
+        .subscribe(() =>
+          this.loadTasks(orgId, this.pageNumber(), this.pageSize()),
+        );
+    }
+  }
+
+  initiateDelete(id: number) {
+    this.pendingDeleteId.set(id);
+  }
+
+  confirmDelete() {
+    const id = this.pendingDeleteId();
+    const orgId = this.session.selectedOrgId();
+
+    if (id && orgId) {
+      this.api.deleteTask(id).subscribe(() => {
+        this.loadTasks(orgId, this.pageNumber(), this.pageSize());
+        this.pendingDeleteId.set(null);
+      });
     }
   }
 }

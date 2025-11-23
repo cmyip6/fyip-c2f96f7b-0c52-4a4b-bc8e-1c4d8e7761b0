@@ -17,7 +17,6 @@
     "baseUrl": ".",
     "paths": {
       "@libs/data/*": ["libs/data/*"],
-      "@libs/auth/*": ["libs/auth/*"],
       "@api/*": ["apps/api/*"]
     }
   },

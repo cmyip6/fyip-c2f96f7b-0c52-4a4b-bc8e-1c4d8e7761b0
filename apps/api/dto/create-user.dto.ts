@@ -1,20 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsNumber,
-  IsObject,
   IsOptional,
   IsString,
-  IsUrl,
   Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { PASSWORD_REGEX } from '../../../libs/data/const/password.regex';
 import { PropertyLength } from '@libs/data/const/length.const';
+import { PASSWORD_REGEX } from '../../../tools/password.regex';
 
 export class CreateUserDto {
   @ApiProperty({ description: 'User Password', type: String })
