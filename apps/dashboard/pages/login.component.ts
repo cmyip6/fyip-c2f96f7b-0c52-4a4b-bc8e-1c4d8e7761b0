@@ -196,7 +196,7 @@ import { OrganizationApiService } from '../api-services/organization-api.service
       <div
         class="absolute bottom-4 text-[10px] text-gray-700 font-mono tracking-widest uppercase"
       >
-        Secure Link Established • v2.0.4 • UNCLASSIFIED
+        Demo Protocal Established • v0.0.0 • Welcome
       </div>
     </div>
   `,

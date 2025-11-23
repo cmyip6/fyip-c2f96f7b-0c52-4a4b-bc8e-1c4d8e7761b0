@@ -1,6 +1,19 @@
-import { Component, inject, signal, computed, effect } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  effect,
+  OnDestroy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import {
+  DragDropModule,
+  CdkDragDrop,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { TaskApiService } from '../api-services/task-api.service';
 import { SessionService } from '../services/session.service';
 import { TaskCardComponent } from '../components/task-card.component';
@@ -14,6 +27,7 @@ import { GetTaskResponseInterface } from '@libs/data/type/get-task-response.inte
   imports: [
     CommonModule,
     FormsModule,
+    DragDropModule,
     TaskCardComponent,
     TopBarComponent,
     ConfirmationModalComponent,
@@ -46,27 +60,113 @@ import { GetTaskResponseInterface } from '@libs/data/type/get-task-response.inte
             </p>
           </div>
 
-          <button
-            (click)="showCreateModal = true"
-            class="group flex items-center gap-2 px-5 py-2.5 bg-amber-700/10 hover:bg-amber-700/20 border border-amber-600/50 text-amber-500 hover:text-amber-400 transition-all rounded-sm uppercase text-xs font-bold tracking-widest shadow-[0_0_10px_rgba(245,158,11,0.1)] hover:shadow-[0_0_20px_rgba(245,158,11,0.2)]"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              class="w-4 h-4 group-hover:rotate-90 transition-transform"
+          <div class="flex items-center gap-3">
+            <!-- Conditional Search Input (Moved Here) -->
+            <div
+              *ngIf="showSearch()"
+              class="relative w-64 animate-in fade-in slide-in-from-right-8 duration-300 origin-right"
             >
-              <path
-                d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"
+              <div
+                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+              >
+                <span class="text-amber-500 font-mono text-xs animate-pulse"
+                  >>_</span
+                >
+              </div>
+              <input
+                type="text"
+                (input)="onSearchInput($event)"
+                class="w-full bg-black/30 border border-amber-900/30 text-gray-300 text-xs font-mono py-2.5 pl-8 pr-8 rounded-sm focus:border-amber-600/50 focus:ring-1 focus:ring-amber-900/50 outline-none placeholder-gray-700 transition-all"
+                placeholder="SEARCH..."
+                autofocus
               />
-            </svg>
-            Initialize Task
-          </button>
+              <!-- Loading Indicator -->
+              <div
+                *ngIf="isSearching()"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center"
+              >
+                <svg
+                  class="animate-spin h-3 w-3 text-amber-500"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Search Toggle Button -->
+            <button
+              (click)="toggleSearch()"
+              [class.text-amber-500]="showSearch()"
+              [class.bg-amber-900/20]="showSearch()"
+              [class.border-amber-600/50]="showSearch()"
+              class="p-2.5 text-gray-400 hover:text-amber-500 bg-black/20 border border-white/10 hover:border-amber-600/50 rounded-sm transition-all"
+              title="Toggle Search Protocol"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-4 h-4"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                />
+              </svg>
+            </button>
+
+            <button
+              (click)="showCreateModal = true"
+              class="group flex items-center gap-2 px-5 py-2.5 bg-amber-700/10 hover:bg-amber-700/20 border border-amber-600/50 text-amber-500 hover:text-amber-400 transition-all rounded-sm uppercase text-xs font-bold tracking-widest shadow-[0_0_10px_rgba(245,158,11,0.1)] hover:shadow-[0_0_20px_rgba(245,158,11,0.2)]"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                class="w-4 h-4 group-hover:rotate-90 transition-transform"
+              >
+                <path
+                  d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"
+                />
+              </svg>
+              Initialize Task
+            </button>
+          </div>
         </div>
 
-        <!-- Task Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <div *ngFor="let task of tasks()" class="relative group">
+        <!-- Task Grid with Drag & Drop -->
+        <div
+          cdkDropList
+          cdkDropListOrientation="mixed"
+          (cdkDropListDropped)="drop($event)"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
+        >
+          <!-- Wrapped in cdkDrag -->
+          <div
+            *ngFor="let task of tasks()"
+            cdkDrag
+            class="relative group cursor-move"
+          >
+            <div *cdkDragPlaceholder class="opacity-0"></div>
+
             <div
               class="absolute -top-1 -left-1 w-2 h-2 border-t border-l border-gray-600/30 group-hover:border-amber-600/50 transition-colors z-0"
             ></div>
@@ -105,11 +205,17 @@ import { GetTaskResponseInterface } from '@libs/data/type/get-task-response.inte
               />
             </svg>
           </div>
-          <h3 class="text-gray-400 font-mono text-sm uppercase tracking-widest">
+          <h3
+            class="text-gray-400 font-mono text-sm uppercase tracking-widest"
+          >
             No Active Directives
           </h3>
           <p class="text-gray-600 text-xs mt-1">
-            Unit '{{ session.currentOrg()?.name }}' awaiting input
+            {{
+              searchQuery()
+                ? 'No matches found for search criteria'
+                : "Unit '" + session.currentOrg()?.name + "' awaiting input"
+            }}
           </p>
         </div>
 
@@ -274,8 +380,31 @@ import { GetTaskResponseInterface } from '@libs/data/type/get-task-response.inte
       </app-confirmation-modal>
     </div>
   `,
+  styles: [
+    `
+      .cdk-drag-preview {
+        box-sizing: border-box;
+        border-radius: 0.125rem;
+        box-shadow:
+          0 20px 25px -5px rgba(0, 0, 0, 0.8),
+          0 10px 10px -5px rgba(0, 0, 0, 0.8);
+        opacity: 0.95;
+      }
+      .cdk-drag-placeholder {
+        opacity: 0.3;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px dashed rgba(255, 255, 255, 0.2);
+      }
+      .cdk-drag-animating {
+        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+      }
+      .grid.cdk-drop-list-dragging .group:not(.cdk-drag-placeholder) {
+        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+      }
+    `,
+  ],
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnDestroy {
   private api = inject(TaskApiService);
   session = inject(SessionService);
 
@@ -286,25 +415,64 @@ export class DashboardComponent {
   pendingDeleteId = signal<number | null>(null);
   totalPages = computed(() => Math.ceil(this.totalRecords() / this.pageSize()));
 
+  // Search State
+  showSearch = signal(false);
+  searchQuery = signal('');
+  isSearching = signal(false);
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
+
   showCreateModal = false;
   newTask = { title: '', description: '' };
 
   constructor() {
+    this.searchSubject
+      .pipe(
+        debounceTime(1000),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((term) => {
+        this.isSearching.set(false);
+        this.pageNumber.set(1); // Reset to page 1 on new search
+        this.searchQuery.set(term); // Triggers the effect below
+      });
+
+    // Global State Effect
     effect(() => {
       const orgId = this.session.selectedOrgId();
       const page = this.pageNumber();
       const size = this.pageSize();
+      const search = this.searchQuery();
 
       if (orgId) {
-        this.loadTasks(orgId, page, size);
+        this.loadTasks(orgId, page, size, search);
       } else {
         this.tasks.set([]);
       }
     });
   }
 
-  loadTasks(orgId: number, page: number, size: number) {
-    this.api.getTasks(orgId, page, size).subscribe((res) => {
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  toggleSearch() {
+    this.showSearch.update((v) => !v);
+    if (!this.showSearch()) {
+      this.onSearchInput({ target: { value: '' } } as any); // Clear search on close
+    }
+  }
+
+  onSearchInput(event: Event) {
+    const val = (event.target as HTMLInputElement).value;
+    this.isSearching.set(true); // Show spinner immediately
+    this.searchSubject.next(val);
+  }
+
+  loadTasks(orgId: number, page: number, size: number, search?: string) {
+    this.api.getTasks(orgId, page, size, search).subscribe((res) => {
       this.tasks.set(res.data);
       this.totalRecords.set(res.metadata.totalRecords);
       if (page > 1 && res.data.length === 0) {
@@ -329,7 +497,12 @@ export class DashboardComponent {
         organizationId: orgId,
       })
       .subscribe(() => {
-        this.loadTasks(orgId, this.pageNumber(), this.pageSize());
+        this.loadTasks(
+          orgId,
+          this.pageNumber(),
+          this.pageSize(),
+          this.searchQuery(),
+        );
         this.showCreateModal = false;
         this.newTask = { title: '', description: '' };
       });
@@ -339,9 +512,14 @@ export class DashboardComponent {
     const orgId = this.session.selectedOrgId();
     if (orgId) {
       this.api
-        .updateTaskStatus(id, status)
+        .updateTask(id, { status })
         .subscribe(() =>
-          this.loadTasks(orgId, this.pageNumber(), this.pageSize()),
+          this.loadTasks(
+            orgId,
+            this.pageNumber(),
+            this.pageSize(),
+            this.searchQuery(),
+          ),
         );
     }
   }
@@ -356,9 +534,31 @@ export class DashboardComponent {
 
     if (id && orgId) {
       this.api.deleteTask(id).subscribe(() => {
-        this.loadTasks(orgId, this.pageNumber(), this.pageSize());
+        this.loadTasks(
+          orgId,
+          this.pageNumber(),
+          this.pageSize(),
+          this.searchQuery(),
+        );
         this.pendingDeleteId.set(null);
       });
     }
+  }
+
+  // New drop event handler
+  drop(event: CdkDragDrop<GetTaskResponseInterface[]>) {
+    if (event.previousIndex === event.currentIndex) return;
+
+    const currentTasks = [...this.tasks()];
+    // Optimistic UI update
+    moveItemInArray(currentTasks, event.previousIndex, event.currentIndex);
+    this.tasks.set(currentTasks);
+
+    const movedTask = currentTasks[event.currentIndex];
+    this.api.updateTask(movedTask.id, { index: event.currentIndex }).subscribe({
+      error: () => {
+        console.error('Failed to update task order');
+      },
+    });
   }
 }

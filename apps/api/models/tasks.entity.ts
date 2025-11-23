@@ -30,6 +30,13 @@ export class TaskEntity extends BaseEntity {
   })
   status: string;
 
+  @Column({
+    name: 'INDEX_PO',
+    type: 'int',
+    nullable: true,
+  })
+  index: number;
+
   @Column({ name: 'DELETED_AT', type: 'timestamp', nullable: true })
   deletedAt: Date;
 

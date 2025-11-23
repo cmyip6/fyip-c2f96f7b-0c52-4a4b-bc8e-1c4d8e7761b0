@@ -12,10 +12,15 @@ export class TaskApiService extends BaseApiService {
     organizationId: number,
     pageNumber: number = 1,
     pageSize: number = 9,
+    search?: string,
   ): Observable<PaginatedResponseInterface<GetTaskResponseInterface>> {
     let params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString());
+
+    if (search) {
+      params = params.set('search', search);
+    }
 
     return this.http.get<PaginatedResponseInterface<GetTaskResponseInterface>>(
       `${this.apiUrl}/task/organization/${organizationId}`,
@@ -27,13 +32,17 @@ export class TaskApiService extends BaseApiService {
     return this.http.post<GetTaskResponseInterface>(`${this.apiUrl}/task`, dto);
   }
 
-  updateTaskStatus(id: string | number, status: string): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/task/${id}`, {
-      status,
-    });
+  updateTask(
+    id: number,
+    data: Partial<GetTaskResponseInterface>,
+  ): Observable<GetTaskResponseInterface> {
+    return this.http.patch<GetTaskResponseInterface>(
+      `${this.apiUrl}/task/${id}`,
+      data,
+    );
   }
 
-  deleteTask(id: string | number): Observable<void> {
+  deleteTask(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/task/${id}`);
   }
 }

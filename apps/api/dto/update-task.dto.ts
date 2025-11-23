@@ -1,4 +1,10 @@
-import { IsString, IsOptional, MaxLength, IsEnum } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  MaxLength,
+  IsEnum,
+  IsNumber,
+} from 'class-validator';
 import { PropertyLength } from '@libs/data/const/length.const';
 import { TaskStatusOptions } from '@libs/data/type/task-status.enum';
 
@@ -16,4 +22,8 @@ export class UpdateTaskDto {
   @IsEnum(TaskStatusOptions)
   @IsOptional()
   status?: TaskStatusOptions;
+
+  @IsNumber()
+  @IsOptional()
+  index?: number;
 }

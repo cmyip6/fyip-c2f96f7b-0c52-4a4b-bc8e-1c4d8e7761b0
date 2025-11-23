@@ -1,82 +1,106 @@
 # TaskManagement
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+Thank you so much for taking the time to review my project! Please follow the instructions below to set up the testing environment.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+# Prerequisites
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+- **Docker** (with Docker Engine running)
+- **Node.js** (via `nvm`)
 
-## Finish your CI setup
+## Setting up environment
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/kGi38vDStL)
+1.  Start the Docker engine.
 
+2.  Clone this repo to your local machine and `cd` into the root directory.
 
-## Run tasks
+3.  Run this command to install packages for all applications:
 
-To run the dev server for your app, use:
+    ```sh
+    npm run install-all
+    ```
 
-```sh
-npx nx serve task-management
-```
+4.  Set up the Docker database:
 
-To create a production bundle:
+    ```sh
+    npm run api:db:setup
+    ```
 
-```sh
-npx nx build task-management
-```
+    > To drop the db later, run:
+    >
+    > ```sh
+    > npm run api:db:setdown
+    > ```
 
-To see all available targets to run for a project, run:
+# Starting API + Client
 
-```sh
-npx nx show project task-management
-```
+1.  **Environment Variables**: Before starting, copy all variables from `env.example` to `.env` and make sure all of them are set.
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+    > **⚠️ Important:** Please set `DROP_SCHEMA`, `RUN_MIGRATIONS`, and `RUN_SEEDS` to `true` for the first run. The process will automatically run all migrations and seed data.
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+2.  Run the API:
 
-## Add new projects
+    ```sh
+    npm run start:api
+    ```
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+3.  Run the Client:
+    _(**Note:** Please make sure all envs are set at this point as they will be referenced to generate a copy for some front-end logic)_
 
-Use the plugin's generator to create new projects.
+    ```sh
+    npm run start:dashboard
+    ```
 
-To generate a new application, use:
+4.  Navigate to http://localhost:4200 and you should see the app is up and running!
 
-```sh
-npx nx g @nx/angular:app demo
-```
+## For testing the feature
 
-To generate a new library, use:
+Please use the following users for your testing purposes. They are automatically seeded when you set `RUN_SEEDS` to `true` before you start the API.
 
-```sh
-npx nx g @nx/angular:lib mylib
-```
+### Users for testing
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+| Username  | Password     | Permission (Parent Org) | Permission (Child Org) |
+| :-------- | :----------- | :---------------------- | :--------------------- |
+| **user1** | `Password!!` | **Owner**               | Admin                  |
+| **user2** | `Password!!` | **Admin**               | Owner                  |
+| **user3** | `Password!!` | **Viewer**              | _No Role_              |
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Feature Highlights
 
+1.  **Authentication:** Login page with token control. Once a user logs in, a token will be saved to a cookie for injecting into the headers of all subsequent requests. Upon token expiration, the user will be logged out upon performing actions.
+    - _Testing Tip:_ You can set `TOKEN_LIFE_SECONDS` to `20` seconds and re-login the user. The user should be logged out when performing any actions after 10 seconds (due to a 10-second buffer).
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+2.  **Dashboard:** Once the user successfully logs in, the page will be redirected to a dashboard where the user can perform task-related actions (Read, Create, Update & Delete). Each action has its own guard and restrictions, and each restriction is linked to the role of the user in each organization.
 
-## Install Nx Console
+3.  **Topbar:**
+    - **Organization Dropdown:** Allows changing organizations (2 organizations are seeded). Users without permissions assigned to the role, or without a role assigned to the user, will not be able to see the organization in the dropdown list.
+    - **Profile:** On the right, there is a profile button leading to a modal where the user can view their information (including their role in the selected organization) and perform logout actions.
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+4.  **Task Card:** From the dashboard, the user can create a task by clicking the "Initialize Task" button. Once the task is created, the user will be able to:
+    - Update the status via the dropdown menu on the task card.
+    - Delete the card by clicking on the cross sign at the corner and confirming via the pop-up modal.
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Permissions & Guards
 
-## Useful links
+As explained above, all API actions are guarded by different permission controls:
 
-Learn more:
+1.  **JWT Guards:** Token must be present and valid.
+2.  **Roles Guard:** Role required to access certain endpoints.
+3.  **Policy Guard:** Checks the permission level (Create, Update, Read, Delete) associated with the role in the organization.
+4.  **Response Validation:** A response validation interceptor was implemented to ensure response DTOs match the defined structure.
 
-- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+_Note: Current implementation is only focusing on task-related control._
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Logic Examples:
+
+1.  User with **Owner** role in Organization A can perform all actions for a task.
+2.  **Admin** can Read, Update, and Create tasks, but cannot Delete.
+3.  **Viewer** can only Read tasks.
+4.  The same user can have different roles in other organizations.
+5.  Permissions associated with a role can be changed (e.g., Admin can be granted delete permissions if defined in the DB).
+
+## Features to be implemented
+
+Due to time limits, there are some missing parts planned but not yet implemented:
+
+1.  **Logging middleware:** Saving action logs for each user, allowing viewing and archiving from the UI.
+2.  **E2E testing:** Create a testing app with the exact same env as the application to perform real CRUD actions and validate against a testing DB, without mocking any of the functions or services.

@@ -6,6 +6,7 @@ export interface GetTaskResponseInterface extends BasePropertiesInterface {
   title: string;
   description?: string;
   status?: string;
+  index?: number;
   deletedAt?: Date;
   deletedBy?: string;
   userId: string;

@@ -4,17 +4,22 @@ import {
   GetTaskResponseDto,
   GetTaskResponsePaginatedDto,
 } from '@api/dto/get-task-response.dto';
-import { PaginationDto } from '@api/dto/pagination.dto';
+import { FilterDto, PaginationDto } from '@api/dto/pagination.dto';
 import { UpdateTaskDto } from '@api/dto/update-task.dto';
 import { PermissionEntity } from '@api/models/permissions.entity';
 import { TaskEntity } from '@api/models/tasks.entity';
 import { UserEntity } from '@api/models/users.entity';
 import { AuthUserInterface } from '@libs/data/type/auth-user.interface';
 import { EntityTypeOptions } from '@libs/data/type/entity-type.enum';
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
-import { DeleteResult, Repository } from 'typeorm';
+import { DeleteResult, IsNull, Repository, UpdateResult } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
@@ -33,11 +38,31 @@ export class TaskService {
     dto: CreateTaskDto,
     user: AuthUserInterface,
   ): Promise<CreateTaskResponseDto> {
+    const nextIndex = await this.getNextIndex(dto.organizationId);
     const createdTask = await this.taskRepo.save({
       ...dto,
+      index: nextIndex,
       user: { id: user.id },
     });
     return plainToInstance(CreateTaskResponseDto, createdTask);
+  }
+
+  async getNextIndex(organizationId: number): Promise<number> {
+    const lastTask = await this.taskRepo.findOne({
+      where: {
+        deletedAt: IsNull(),
+        organizationId,
+      },
+      order: {
+        index: 'DESC',
+      },
+    });
+
+    if (!lastTask || lastTask.index == null) {
+      return 0;
+    }
+
+    return lastTask.index + 1;
   }
 
   @Transactional()
@@ -45,9 +70,41 @@ export class TaskService {
     taskId: number,
     dto: UpdateTaskDto,
     user: AuthUserInterface,
-  ): Promise<DeleteResult> {
+  ): Promise<UpdateResult> {
+    const foundTask = await this.taskRepo.findOneBy({
+      id: taskId,
+      deletedAt: IsNull(),
+    });
+
+    if (!foundTask) {
+      throw new NotFoundException('Task not found: ' + taskId);
+    }
+
+    const { index, ...rest } = dto;
+    if (index != undefined) {
+      const currentTasks = await this.taskRepo.find({
+        where: {
+          deletedAt: IsNull(),
+          organizationId: foundTask.organizationId,
+        },
+        order: { index: 'ASC' },
+      });
+
+      const currIndex = currentTasks.findIndex((x) => x.id === taskId);
+
+      const taskToMove = currentTasks[currIndex];
+      currentTasks.splice(currIndex, 1);
+      currentTasks.splice(index, 0, taskToMove);
+      await this.taskRepo.save(
+        currentTasks.map((task, index) => ({
+          ...task,
+          index,
+        })),
+      );
+    }
+
     const deleteResult = await this.taskRepo.update(taskId, {
-      ...dto,
+      ...rest,
       updatedBy: user.id,
       updatedAt: new Date(),
     });
@@ -75,6 +132,7 @@ export class TaskService {
     userId: string,
     organizationId: number,
     pagination: PaginationDto,
+    filters: FilterDto,
   ): Promise<GetTaskResponsePaginatedDto> {
     const foundUser = await this.userRepo.findOne({
       where: { id: userId },
@@ -93,6 +151,7 @@ export class TaskService {
       );
     }
     const { pageSize, pageNumber } = pagination;
+    const { search } = filters;
     const ownerSubQuery = this.taskRepo
       .createQueryBuilder()
       .subQuery()
@@ -132,8 +191,12 @@ export class TaskService {
       .where(`EXISTS (${permissionSubQuery.getQuery()})`)
       .andWhere('T.organizationId = :organizationId', { organizationId })
       .andWhere('T.deletedAt IS NULL')
-      .orderBy('T.createdAt')
+      .orderBy('T.index', 'ASC', 'NULLS LAST')
       .setParameters(permissionSubQuery.getParameters());
+
+    if (search != undefined) {
+      getTaskQuery.andWhere('T.title ILIKE :search', { search: `%${search}%` });
+    }
 
     const countQuery = getTaskQuery.clone().getCount();
 

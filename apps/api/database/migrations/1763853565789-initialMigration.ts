@@ -93,22 +93,23 @@ export class InitialMigration1763853565789 implements MigrationInterface {
         `);
 
     await queryRunner.query(`
-            CREATE TABLE "TASKS" (
-                "created_at" TIMESTAMP NOT NULL DEFAULT now(),
-                "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
-                "created_by" character varying,
-                "updated_by" character varying,
-                "id" SERIAL NOT NULL,
-                "TITLE" character varying(50) NOT NULL,
-                "DESCRIPTION" json,
-                "STATUS" character varying NOT NULL DEFAULT 'OPEN',
-                "DELETED_AT" TIMESTAMP,
-                "DELETED_BY" character varying,
-                "USER_ID" uuid NOT NULL,
-                "ORGANIZATION_ID" integer NOT NULL,
-                CONSTRAINT "PK_d1bd6713abd1e91ee9512056cc0" PRIMARY KEY ("id")
-            )
-        `);
+    CREATE TABLE "TASKS" (
+        "created_at" TIMESTAMP NOT NULL DEFAULT now(),
+        "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
+        "created_by" character varying,
+        "updated_by" character varying,
+        "id" SERIAL NOT NULL,
+        "TITLE" character varying(50) NOT NULL,
+        "DESCRIPTION" json,
+        "STATUS" character varying NOT NULL DEFAULT 'OPEN',
+        "DELETED_AT" TIMESTAMP,
+        "DELETED_BY" character varying,
+        "USER_ID" uuid NOT NULL,
+        "ORGANIZATION_ID" integer NOT NULL,
+        "INDEX_PO" int,
+        CONSTRAINT "PK_d1bd6713abd1e91ee9512056cc0" PRIMARY KEY ("id")
+    )
+`);
 
     await queryRunner.query(`
             CREATE TABLE "USER_ROLES" (

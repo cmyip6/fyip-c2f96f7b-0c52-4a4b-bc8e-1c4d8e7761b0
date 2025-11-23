@@ -65,11 +65,17 @@ export class TaskController {
     @Param('organizationId', ParseIntPipe) organizationId: number,
     @Query('pageSize', ParseIntPipe) pageSize = 10,
     @Query('pageNumber', ParseIntPipe) pageNumber = 1,
+    @Query('search') search?: string,
   ): Promise<GetTaskResponsePaginatedDto> {
-    return this.service.getAll(user.id, organizationId, {
-      pageSize,
-      pageNumber,
-    });
+    return this.service.getAll(
+      user.id,
+      organizationId,
+      {
+        pageSize,
+        pageNumber,
+      },
+      { search },
+    );
   }
 
   @Post()
