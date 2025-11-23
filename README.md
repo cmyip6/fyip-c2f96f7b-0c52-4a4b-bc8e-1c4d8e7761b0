@@ -75,7 +75,8 @@ Please use the following users for your testing purposes. They are automatically
     * **Profile:** On the right, there is a profile button leading to a modal where the user can view their information (including their role in the selected organization) and perform logout actions.
 
 4.  **Task Card:** From the dashboard, the user can create a task by clicking the "Initialize Task" button. Once the task is created, the user will be able to:
-    * Update the status via the dropdown menu on the task card.
+    * Search task by title at the search input. Pagination supported.     
+    * Update the status via the dropdown menu on the task card. Reordering by drag and drop
     * Delete the card by clicking on the cross sign at the corner and confirming via the pop-up modal.
 
 ## Permissions & Guards
