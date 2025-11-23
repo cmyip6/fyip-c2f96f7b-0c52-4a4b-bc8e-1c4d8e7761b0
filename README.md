@@ -81,36 +81,59 @@ root/
 
 ### erDiagram
 
-    Organization {
-        string id PK
-        string name
-        string description
+ USERS {
+        uuid id PK
+        varchar username
+        varchar name
+        varchar email
+        varchar userType
+        varchar passwordHash
+        text token
     }
 
-    User {
-        string id PK
-        string username
-        string passwordHash
-        enum role "ADMIN | USER"
-        string organizationId FK
+    ORGANIZATIONS {
+        int id PK
+        varchar name
+        varchar description
     }
 
-    Task {
-        string id PK
-        string title
-        string description
-        enum status "OPEN | IN_PROGRESS | DONE"
-        date createdAt
-        int order
-        string assignedToId FK
-        string organizationId FK
+    ROLES {
+        int id PK
+        varchar name
+        varchar description
+        int organization_id FK
     }
 
-**Organization**: The top-level tenant. Data isolation is enforced at this level.
+    PERMISSIONS {
+        int id PK
+        varchar entityType
+        varchar permission
+        int roleId FK
+    }
 
-**User**: Belongs to one Organization. Holds a Role (ADMIN or USER) specific to that organization.
+    TASKS {
+        int id PK
+        varchar title
+        json description
+        varchar status
+        int index_po
+        uuid userId FK
+        int organizationId FK
+    }
 
-**Task**: The core unit of work. Linked to both an Organization (for ownership) and a User (for assignment).
+    ORGANIZATION_RELATION {
+        int id PK
+        int parentOrganizationId FK
+        int childOrganizationId FK
+    }
+
+**Users & Roles**: Users share a Many-to-Many relationship with Roles via a junction table (USER_ROLES).
+
+**RBAC:** Permissions are linked directly to Roles, not Users. This allows for defining granular access control (e.g., CREATE_TASK, DELETE_USER) per role.
+
+**Hierarchical Organizations:** The ORGANIZATION_RELATION table allows organizations to be nested (Parent/Child relationships), enabling complex organizational structures.
+
+**Tasks:** Tasks are owned by an Organization but assigned to a specific User.
 
 # API Documentation
 
