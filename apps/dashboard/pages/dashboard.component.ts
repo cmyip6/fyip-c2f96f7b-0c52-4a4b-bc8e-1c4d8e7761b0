@@ -464,7 +464,7 @@ export class DashboardComponent implements OnDestroy {
     }
   }
 
-  onSearchInput(event: { target: { value: string } }) {
+  onSearchInput(event: Event | { target: { value: string } }) {
     const val = (event.target as HTMLInputElement).value;
     this.isSearching.set(true);
     this.searchSubject.next(val);
