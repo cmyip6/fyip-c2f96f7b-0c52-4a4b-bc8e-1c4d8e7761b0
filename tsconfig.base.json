@@ -20,5 +20,8 @@
       "@api/*": ["apps/api/*"]
     }
   },
+  "angularCompilerOptions": {
+    "strictTemplates": true
+  },
   "exclude": ["node_modules", "tmp"]
 }

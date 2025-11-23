@@ -51,7 +51,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const tokenLifeSeconds = 3600;
+    const tokenLifeSeconds = +process.env.TOKEN_LIFE_SECONDS || 3600;
     const expiryTimestamp = Math.floor(Date.now() / 1000) + tokenLifeSeconds;
 
     const organizationsDb = await this.organizationRepo.find({

@@ -91,7 +91,7 @@ export class TaskController {
   @CheckPolicies(
     new PoliciesExecuter(EntityTypeOptions.TASK).Update('params.taskId'),
   )
-  @Admin('params.taskId')
+  @Admin('params.taskId', EntityTypeOptions.TASK)
   updateOne(
     @Param('taskId', ParseIntPipe) taskId: number,
     @Body() dto: UpdateTaskDto,
@@ -104,7 +104,7 @@ export class TaskController {
   @CheckPolicies(
     new PoliciesExecuter(EntityTypeOptions.TASK).Delete('params.taskId'),
   )
-  @Admin('params.taskId')
+  @Admin('params.taskId', EntityTypeOptions.TASK)
   deleteOne(
     @Param('taskId', ParseIntPipe) taskId: number,
     @User() user: AuthUserInterface,

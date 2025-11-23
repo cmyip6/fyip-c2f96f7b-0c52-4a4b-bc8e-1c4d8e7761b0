@@ -24,7 +24,7 @@ export class JwtAuthGuard implements CanActivate {
     if (request.user) {
       const { user } = request;
       const isValid = await this.authImplService.isUserValid(user.id);
-      const currentTime = Math.floor(Date.now() / 1000) + 60;
+      const currentTime = Math.floor(Date.now() / 1000) + 10;
       const tokenExpired = !user?.tokenExpiry || user.tokenExpiry < currentTime;
       if (isValid && !tokenExpired) {
         this.logger.verbose('User is valid, access granted');

@@ -132,6 +132,7 @@ export class TaskService {
       .where(`EXISTS (${permissionSubQuery.getQuery()})`)
       .andWhere('T.organizationId = :organizationId', { organizationId })
       .andWhere('T.deletedAt IS NULL')
+      .orderBy('T.createdAt')
       .setParameters(permissionSubQuery.getParameters());
 
     const countQuery = getTaskQuery.clone().getCount();

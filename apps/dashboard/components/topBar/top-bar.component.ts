@@ -15,7 +15,6 @@ import { SessionService } from '../../services/session.service';
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16 items-center">
-          <!-- Left: Logo & Org Selector -->
           <div class="flex items-center gap-8">
             <!-- Logo -->
             <div class="flex items-center gap-2">
@@ -39,7 +38,7 @@ import { SessionService } from '../../services/session.service';
               </div>
               <span
                 class="text-amber-500 font-bold tracking-widest uppercase text-lg hidden md:block"
-                >Task<span class="text-gray-500">Com</span></span
+                >Task<span class="text-gray-500">Management</span></span
               >
             </div>
 
