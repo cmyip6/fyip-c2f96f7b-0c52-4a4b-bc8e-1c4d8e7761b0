@@ -77,12 +77,9 @@ root/
 
 # Data Model Explanation
 
-The database schema is designed for multi-tenancy, allowing users to belong to organizations with specific roles.
+### The database schema is designed for multi-tenancy, allowing users to belong to organizations with specific roles.
 
-erDiagram
-    Organization ||--|{ User : "has members"
-    Organization ||--|{ Task : "owns"
-    User ||--|{ Task : "assigned to"
+### erDiagram
 
     Organization {
         string id PK
