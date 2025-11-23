@@ -58,15 +58,15 @@ This project utilizes an Nx Monorepo structure to ensure code sharing, type safe
 
 ### Layout Strategy
 
-root/
-├── apps/
-│   ├── api/                # NestJS Backend application
-│   └── dashboard/          # Angular Frontend application
-├── libs/
-│   ├── data/               # Shared Types, DTOs, and Constants
-│   └── auth/               # Shared Authentication Utilities
-├── tools/                  # Scripts (e.g., environment generation)
-└── nx.json                 # Monorepo configuration
+      root/
+      ├── apps/
+      │   ├── api/                # NestJS Backend application
+      │   └── dashboard/          # Angular Frontend application
+      ├── libs/
+      │   ├── data/               # Shared Types, DTOs, and Constants
+      │   └── auth/               # Shared Authentication Utilities
+      ├── tools/                  # Scripts (e.g., environment generation)
+      └── nx.json                 # Monorepo configuration
 
 ## Rationale
 1. **Single Source of Truth:** The libs/data library contains TypeScript interfaces used by both the API (to define Entities) and the Frontend (to type HTTP responses). If    the API changes, the Frontend build fails immediately, preventing runtime errors.
@@ -81,7 +81,7 @@ root/
 
 ### erDiagram
 
- USERS {
+     USERS {
         uuid id PK
         varchar username
         varchar name
@@ -158,21 +158,21 @@ root/
 | **DELETE** | `/task/:id`              | Delete task ( sofe )       | —                                              |
 
 ## Sample Response — Get Tasks
-{
-  "data": [
-    {
-      "id": "123-abc",
-      "title": "Review PR",
-      "status": "OPEN",
-      "assignedToId": "user-1"
-    }
-  ],
-  "metadata": {
-    "totalRecords": 45,
-    "pageNumber": 1,
-    "pageSize": 10
-  }
-}
+      {
+        "data": [
+          {
+            "id": "123-abc",
+            "title": "Review PR",
+            "status": "OPEN",
+            "assignedToId": "user-1"
+          }
+        ],
+        "metadata": {
+          "totalRecords": 45,
+          "pageNumber": 1,
+          "pageSize": 10
+        }
+      }
 
 
 # For testing the feature
