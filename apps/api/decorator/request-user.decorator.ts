@@ -1,8 +1,13 @@
+import { AuthUserInterface } from '@libs/data/type/auth-user.interface';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const User = createParamDecorator(
-  (_: unknown, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest();
-    return request.user;
+  (
+    data: keyof AuthUserInterface | undefined,
+    ctx: ExecutionContext,
+  ): AuthUserInterface | AuthUserInterface[keyof AuthUserInterface] => {
+    const user = ctx.switchToHttp().getRequest().user;
+
+    return data ? user[data] : user;
   },
 );

@@ -11,7 +11,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { PropertyLength } from '@libs/data/const/length.const';
-import { PASSWORD_REGEX } from '../../../tools/password.regex';
+import { PASSWORD_REGEX } from '../helper/password.regex';
 
 export class CreateUserDto {
   @ApiProperty({ description: 'User Password', type: String })

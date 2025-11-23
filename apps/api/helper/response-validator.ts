@@ -65,7 +65,7 @@ export class ValidateDtoInterceptor<T extends object>
 
   private extractConstraints(
     validationErrors: ValidationError[],
-  ): Array<unknown> {
+  ): Array<string> {
     const constraints: string[] = [];
 
     function findConstraints(error: ValidationError): void {

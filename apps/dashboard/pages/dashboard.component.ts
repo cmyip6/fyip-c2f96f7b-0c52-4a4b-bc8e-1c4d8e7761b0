@@ -434,11 +434,10 @@ export class DashboardComponent implements OnDestroy {
       )
       .subscribe((term) => {
         this.isSearching.set(false);
-        this.pageNumber.set(1); // Reset to page 1 on new search
-        this.searchQuery.set(term); // Triggers the effect below
+        this.pageNumber.set(1);
+        this.searchQuery.set(term);
       });
 
-    // Global State Effect
     effect(() => {
       const orgId = this.session.selectedOrgId();
       const page = this.pageNumber();
@@ -461,13 +460,13 @@ export class DashboardComponent implements OnDestroy {
   toggleSearch() {
     this.showSearch.update((v) => !v);
     if (!this.showSearch()) {
-      this.onSearchInput({ target: { value: '' } } as any); // Clear search on close
+      this.onSearchInput({ target: { value: '' } });
     }
   }
 
-  onSearchInput(event: Event) {
+  onSearchInput(event: { target: { value: string } }) {
     const val = (event.target as HTMLInputElement).value;
-    this.isSearching.set(true); // Show spinner immediately
+    this.isSearching.set(true);
     this.searchSubject.next(val);
   }
 
