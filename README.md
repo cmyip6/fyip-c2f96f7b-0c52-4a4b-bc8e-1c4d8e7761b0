@@ -63,8 +63,7 @@ This project utilizes an Nx Monorepo structure to ensure code sharing, type safe
       │   ├── api/                # NestJS Backend application
       │   └── dashboard/          # Angular Frontend application
       ├── libs/
-      │   ├── data/               # Shared Types, DTOs, and Constants
-      │   └── auth/               # Shared Authentication Utilities
+      │   └── data/               # Shared Types, DTOs, and Constants
       ├── tools/                  # Scripts (e.g., environment generation)
       └── nx.json                 # Monorepo configuration
 
