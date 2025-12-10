@@ -32,6 +32,6 @@ export class JwtAuthGuard implements CanActivate {
       }
     }
 
-    ThrowLogoutResponse();
+    ThrowLogoutResponse('Session expired, please login again.');
   }
 }
