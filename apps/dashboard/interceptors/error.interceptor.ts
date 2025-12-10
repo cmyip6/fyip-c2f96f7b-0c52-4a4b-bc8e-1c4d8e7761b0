@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { ErrorService } from '../services/error.service';
+import { ResponseActionOptions } from '@libs/data/const/response-action.enum';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const errorService = inject(ErrorService);
@@ -20,8 +21,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         message = err.message;
       }
 
-      if (statusCode === 401 && err.error?.action === 'LOGOUT') {
-        document.cookie = 'token=; Max-Age=0; path=/;';
+      if (
+        statusCode === 401 &&
+        err.error?.action === ResponseActionOptions.LOGOUT
+      ) {
+        document.cookie = 'token=;';
         router.navigate(['/login']);
       }
 

@@ -9,10 +9,17 @@ export interface AppError {
 export class ErrorService {
   readonly error = signal<AppError | null>(null);
 
+  private timeoutId: any;
+
   showError(statusCode: number, message: string | string[]) {
+    // fixed on 24/11
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
+
     this.error.set({ statusCode, message });
 
-    setTimeout(() => {
+    this.timeoutId = setTimeout(() => {
       this.clear();
     }, 5000);
   }

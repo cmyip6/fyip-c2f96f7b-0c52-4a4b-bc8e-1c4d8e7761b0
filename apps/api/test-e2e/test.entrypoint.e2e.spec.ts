@@ -1,22 +1,32 @@
-// import { type INestApplication, Logger } from '@nestjs/common';
+// import {
+//   type INestApplication,
+//   InternalServerErrorException,
+//   Logger,
+//   ValidationPipe,
+// } from '@nestjs/common';
 // import {
 //   Test,
 //   type TestingModule,
 //   type TestingModuleBuilder,
 // } from '@nestjs/testing';
-// import * as bodyParser from 'body-parser';
-// import { type DataSource } from 'typeorm';
-// import { initializeTransactionalContext } from 'typeorm-transactional';
+// import * as seeders from '../database/seed';
+// import {
+//   getDataSourceByName,
+//   initializeTransactionalContext,
+// } from 'typeorm-transactional';
 
 // import { TestModule } from './modules/test.module';
-// import * as seeds from '../database/seed';
 // import { TypeORMMigrations } from '../helper/typeorm-migration';
+// import { TaskManagementModule } from '../task-management.module';
+// import { CONNECTION_NAME } from '../database/dbconfig';
+// import { DecoratedSuites } from './modules/jest-test.decorator';
+// import { BaseTest } from './test/base-test';
 
 // const TESTTORUN = process.env['TESTTORUN'];
 // const SUITETORUN = process.env['SUITETORUN'];
-// const DROP_SCHEMA = process.env['DROP_SCHEMA'];
-// const EXECUTE_MIGRATIONS = process.env['EXECUTE_MIGRATIONS'];
-// const IMPORT_SEEDS = process.env['IMPORT_SEEDS'];
+// const DROP_SCHEMA = process.env['DROP_SCHEMA'] === 'true';
+// const RUN_MIGRATIONS = process.env['RUN_MIGRATIONS'] === 'true';
+// const RUN_SEEDS = process.env['RUN_SEEDS'] === 'true';
 
 // const initTestingNest = async (): Promise<INestApplication> => {
 //   initializeTransactionalContext({ maxHookHandlers: 500 });
@@ -24,9 +34,7 @@
 
 //   const testingModuleBuilder: TestingModuleBuilder = Test.createTestingModule({
 //     imports: [TaskManagementModule, TestModule],
-//   })
-//     .overrideProvider(ConsumeEndpointService)
-//     .useClass(FakeConsumeEndpoint);
+//   });
 
 //   logger.log(`Compiling test modules...`);
 //   const testingModule: TestingModule = await testingModuleBuilder.compile();
@@ -36,47 +44,62 @@
 //     logger,
 //     bufferLogs: false,
 //   });
-//   app.use(bodyParser.json({ limit: '10mb' }));
-//   app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
-//   const dataSource = app.get<DataSource>(getDataSourceToken(DATABASE_NAME));
+//   app.setGlobalPrefix('api');
+//   app.useGlobalPipes(
+//     new ValidationPipe({
+//       transform: true,
+//       enableDebugMessages: true,
+//       transformOptions: { enableImplicitConversion: true },
+//       whitelist: true,
+//       forbidNonWhitelisted: true,
+//     }),
+//   );
+
+//   const dataSource = getDataSourceByName(CONNECTION_NAME);
+//   if (!dataSource) {
+//     throw new InternalServerErrorException('No datasource defined');
+//   }
+
 //   const migrations = new TypeORMMigrations(dataSource);
 
 //   await migrations.run(
 //     !!DROP_SCHEMA,
-//     !!EXECUTE_MIGRATIONS,
-//     !!IMPORT_SEEDS,
-//     seedsTypes,
-//     seedTable,
+//     !!RUN_MIGRATIONS,
+//     !!RUN_SEEDS,
+//     Object.values(seeders),
 //   );
 
-//   return await startupMtTestApp(
-//     TaskManagementModule,
-//     TestModule,
-//     ConfigServiceVars,
-//     [...Object.values(seeds)],
-//     'WORKFLOW',
-//     builderInit,
-//     appInit,
+//   const port = process.env.TEST_API_PORT || 4200;
+//   const host = process.env.TEST_API_HOST || 'localhost';
+//   const protocol = process.env.TEST_API_PROTOCOL || 'http';
+//   await app.listen(port);
+
+//   Logger.log(
+//     `Testing Application is running on: ${protocol}://${host}:${port}/api`,
 //   );
+
+//   return app;
 // };
 
 // let app: INestApplication;
 // beforeAll(async () => {
-//   app = await initNest();
+//   app = await initTestingNest();
 // });
 
 // describe('Task Management Test Suite', () => {
 //   test('', () => {
 //     for (const appTestClass of Object.keys(DecoratedSuites)) {
 //       const testSuite = DecoratedSuites[appTestClass];
-//       const c = app.get<NewBaseTest>(testSuite.target);
+//       const c = app.get<BaseTest>(testSuite.target);
 //       c.setApp(app);
 //     }
 //   });
 
-//   const isSelectedToRun = (actualName, selectedName): boolean =>
-//     !selectedName || selectedName === actualName;
+//   const isSelectedToRun = (
+//     actualName: string,
+//     selectedName: string | undefined,
+//   ): boolean => !selectedName || selectedName === actualName;
 
 //   for (const appTestClass of Object.keys(DecoratedSuites)) {
 //     const testSuite = DecoratedSuites[appTestClass];
@@ -84,31 +107,19 @@
 //       describe(testSuite.title, () => {
 //         for (const testMethod of testSuite.tests) {
 //           if (isSelectedToRun(testMethod.description, TESTTORUN)) {
-//             let funcToRun = it.concurrent;
-//             if (RUN_TESTS_IN_PARALLEL === false) {
-//               funcToRun = it;
-//             }
-//             funcToRun(testMethod.description, async () => {
-//               const logger = app.get(WINSTON_MODULE_NEST_PROVIDER);
+//             it(testMethod.description, async () => {
+//               const logger = new Logger('E2E-TEST');
 //               const start = moment();
 //               logger.log({
 //                 level: 'warn',
 //                 message: `=========> Running test: ${testSuite.title} / ${testMethod.description}`,
 //               });
-//               const c = app.get<NewBaseTest>(testSuite.target);
+//               const c = app.get<BaseTest>(testSuite.target);
 //               let result = true;
 //               try {
-//                 await clsService.run(async () => {
-//                   multitenancyContext.setTenantId(
-//                     multitenancyService.getFirstTenantId(),
-//                   );
-//                   await testMethod.method.apply(c);
-//                 });
+//                 await testMethod.method.apply(c);
 //               } catch (error) {
 //                 result = false;
-//                 if (appConfigService.getString('TM_LOGGER_LEVEL') === 'crit') {
-//                   logger.log({ level: 'fatal', message: 'Test Error', error });
-//                 }
 //                 throw error;
 //               } finally {
 //                 logger.log({
@@ -131,8 +142,3 @@
 //     await app.close();
 //   }
 // });
-// function getDataSourceToken(
-//   DATABASE_NAME: any,
-// ): string | symbol | Function | import('@nestjs/common').Type<DataSource> {
-//   throw new Error('Function not implemented.');
-// }

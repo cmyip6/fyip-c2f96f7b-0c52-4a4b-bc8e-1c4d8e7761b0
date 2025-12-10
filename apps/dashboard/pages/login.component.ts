@@ -228,9 +228,7 @@ export class LoginComponent {
       .login(username!, password!)
       .pipe(
         tap((response) => {
-          const d = new Date();
-          d.setTime(d.getTime() + 1 * 24 * 60 * 60 * 1000);
-          document.cookie = `token=${response.token};expires=${d.toUTCString()};path=/`;
+          document.cookie = `token=${response.token};`; // updated on 24/11
           this.session.setUser(response.user);
         }),
         switchMap(() => this.orgApi.getOrganizations()),

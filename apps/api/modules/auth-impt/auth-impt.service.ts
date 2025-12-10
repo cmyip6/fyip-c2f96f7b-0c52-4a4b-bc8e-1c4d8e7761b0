@@ -67,6 +67,7 @@ export class AuthImptService {
 
         return await permissionRepo.existsBy({
           roleId: foundRole.id,
+          entityType, // fixed on 28/11
           permission,
         });
       }
@@ -82,6 +83,7 @@ export class AuthImptService {
 
         return await permissionRepo.existsBy({
           roleId: foundRole.id,
+          entityType, // fixed on 28/11
           permission,
         });
       }
