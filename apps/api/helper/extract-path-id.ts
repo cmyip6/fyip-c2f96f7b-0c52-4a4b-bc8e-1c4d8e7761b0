@@ -9,6 +9,7 @@ export const getEntityValue = (
   path: string,
 ): number | undefined => {
   if (path !== null && path !== undefined) {
+    // body.folder.id
     const split = path.split('.');
     for (const str of split) {
       if (!request) {

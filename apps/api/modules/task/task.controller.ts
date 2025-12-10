@@ -81,7 +81,7 @@ export class TaskController {
   @Post()
   @ValidateResponse(CreateTaskResponseDto)
   @CheckPolicies(
-    new PoliciesExecuter(EntityTypeOptions.ORGANIZATION).Create(
+    new PoliciesExecuter(EntityTypeOptions.ORGANIZATION).Update(
       'body.organizationId',
     ),
   )
