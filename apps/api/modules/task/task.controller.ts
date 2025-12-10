@@ -27,7 +27,7 @@ import { ValidateResponse } from '@api/helper/response-validator';
 import { User } from '@api/decorator/request-user.decorator';
 import { CreateTaskDto } from '@api/dto/create-task.dto';
 import { EntityTypeOptions } from '@libs/data/type/entity-type.enum';
-import { PoliciesExecuter } from '@api/policies/task.policy';
+import { PoliciesExecutor } from '@api/policies/task.policy';
 import { CreateTaskResponseDto } from '@api/dto/create-task-response.dto';
 import { DeleteResult } from 'typeorm';
 import { UpdateTaskDto } from '@api/dto/update-task.dto';
@@ -44,7 +44,7 @@ export class TaskController {
   @ValidateResponse(GetTaskResponseDto)
   @Viewer('params.taskId', EntityTypeOptions.TASK)
   @CheckPolicies(
-    new PoliciesExecuter(EntityTypeOptions.TASK).Read('params.taskId'),
+    new PoliciesExecutor(EntityTypeOptions.TASK).Read('params.taskId'),
   )
   getOne(
     @Param('taskId', ParseIntPipe) taskId: number,
@@ -56,7 +56,7 @@ export class TaskController {
   @Viewer('params.organizationId')
   @ValidateResponse(GetTaskResponsePaginatedDto)
   @CheckPolicies(
-    new PoliciesExecuter(EntityTypeOptions.ORGANIZATION).Read(
+    new PoliciesExecutor(EntityTypeOptions.ORGANIZATION).Read(
       'params.organizationId',
     ),
   )
@@ -81,7 +81,10 @@ export class TaskController {
   @Post()
   @ValidateResponse(CreateTaskResponseDto)
   @CheckPolicies(
-    new PoliciesExecuter(EntityTypeOptions.ORGANIZATION).Update(
+    new PoliciesExecutor(EntityTypeOptions.ORGANIZATION).Update(
+      'body.organizationId',
+    ),
+    new PoliciesExecutor(EntityTypeOptions.ORGANIZATION).Read(
       'body.organizationId',
     ),
   )
@@ -95,7 +98,7 @@ export class TaskController {
 
   @Patch(':taskId')
   @CheckPolicies(
-    new PoliciesExecuter(EntityTypeOptions.TASK).Update('params.taskId'),
+    new PoliciesExecutor(EntityTypeOptions.TASK).Update('params.taskId'),
   )
   @Admin('params.taskId', EntityTypeOptions.TASK)
   updateOne(
@@ -108,7 +111,7 @@ export class TaskController {
 
   @Delete(':taskId')
   @CheckPolicies(
-    new PoliciesExecuter(EntityTypeOptions.TASK).Delete('params.taskId'),
+    new PoliciesExecutor(EntityTypeOptions.TASK).Delete('params.taskId'),
   )
   @Admin('params.taskId', EntityTypeOptions.TASK)
   deleteOne(

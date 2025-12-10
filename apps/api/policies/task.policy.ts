@@ -7,7 +7,7 @@ export type PolicyHandlerType = {
   path: string;
 };
 
-export class PoliciesExecuter {
+export class PoliciesExecutor {
   private entityType: EntityTypeOptions;
 
   constructor(entitType: EntityTypeOptions) {
