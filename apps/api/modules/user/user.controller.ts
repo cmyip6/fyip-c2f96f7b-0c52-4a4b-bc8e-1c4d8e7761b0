@@ -13,12 +13,12 @@ import { RefreshTokenDto } from '@api/dto/refresh-token.dto';
 import { NoPolicies } from '@api/decorator/policy-guard.decorator';
 import { RolesGuard } from '@api/guard/roles-guard';
 import { User } from '@api/decorator/request-user.decorator';
-import { GetUserReponseDto } from '@api/dto/get-user-response.dto';
 import { AuthUserInterface } from '@libs/data/type/auth-user.interface';
 import { JwtAuthGuard } from '@api/guard/jwt-auth-guard';
+import { PoliciesGuard } from '@api/guard/policy-guard';
 
 @Controller('user')
-@UseGuards(RolesGuard, JwtAuthGuard)
+@UseGuards(RolesGuard, JwtAuthGuard, PoliciesGuard)
 export class UserController {
   private logger: Logger;
 
@@ -31,10 +31,9 @@ export class UserController {
 
   @Get()
   @NoPolicies()
-  async getCurrentUser(
-    @User() user: AuthUserInterface,
-  ): Promise<GetUserReponseDto> {
-    return await this.usersService.getUserById(user.id);
+  getCurrentUser(@User() user: AuthUserInterface): AuthUserInterface {
+    this.logger.log('User token is valid, returning user' + user.id);
+    return user;
   }
 
   @Get('/refresh-token')

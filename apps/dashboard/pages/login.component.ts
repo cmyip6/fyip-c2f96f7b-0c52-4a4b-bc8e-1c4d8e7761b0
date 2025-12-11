@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -7,6 +7,8 @@ import { ErrorService } from '../services/error.service';
 import { SessionService } from '../services/session.service';
 import { switchMap, tap } from 'rxjs';
 import { OrganizationApiService } from '../api-services/organization-api.service';
+import { UserApiService } from '../api-services/user-api.service';
+import { GetOrganizationResponseInterface } from '@libs/data/type/get-organization-response.interface';
 
 @Component({
   selector: 'app-login',
@@ -19,19 +21,6 @@ import { OrganizationApiService } from '../api-services/organization-api.service
       <div
         class="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"
       ></div>
-
-      <!-- Display API Errors -->
-      <div *ngIf="error()" class="fixed top-5 right-5 z-50 animate-bounce">
-        <div
-          class="bg-[#2A2F35] border-l-[6px] border-red-900/80 shadow-[0_8px_20px_rgba(0,0,0,0.8)] rounded-sm ring-1 ring-white/5 p-4 flex items-center gap-3"
-        >
-          <span
-            class="text-red-500 font-bold font-mono uppercase tracking-wider text-sm"
-            >Error:</span
-          >
-          <span class="text-gray-400 text-sm font-mono">{{ error() }}</span>
-        </div>
-      </div>
 
       <div
         class="w-full max-w-md bg-[#2A2F35] relative z-10 shadow-[0_20px_50px_rgba(0,0,0,0.9)] rounded-sm ring-1 ring-white/10 p-8 sm:p-12 overflow-hidden border-t-4 border-amber-700/50"
@@ -139,6 +128,7 @@ import { OrganizationApiService } from '../api-services/organization-api.service
               <input
                 id="remember-me"
                 name="remember-me"
+                formControlName="rememberMe"
                 type="checkbox"
                 class="h-4 w-4 rounded-sm border-gray-600 bg-black/20 text-amber-600 focus:ring-amber-600/30 cursor-pointer"
               />
@@ -186,7 +176,11 @@ import { OrganizationApiService } from '../api-services/organization-api.service
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
-              Authenticating...
+              {{
+                isAutoLogin()
+                  ? 'Checking Existing Session...'
+                  : 'Authenticating...'
+              }}
             </ng-container>
             <span *ngIf="!isLoading()">Initiate Session</span>
           </button>
@@ -201,10 +195,11 @@ import { OrganizationApiService } from '../api-services/organization-api.service
     </div>
   `,
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authApi = inject(AuthApiService);
   private orgApi = inject(OrganizationApiService);
+  private userApi = inject(UserApiService);
   private router = inject(Router);
   private errorService = inject(ErrorService);
   private session = inject(SessionService);
@@ -212,49 +207,67 @@ export class LoginComponent {
   loginForm = this.fb.group({
     username: ['', Validators.required],
     password: ['', Validators.required],
+    rememberMe: false,
   });
 
   isLoading = signal(false);
-  error = signal<string | null>(null);
+  isAutoLogin = signal(false);
+
+  ngOnInit() {
+    this.isAutoLogin.set(true);
+    this.isLoading.set(true);
+
+    this.userApi
+      .getCurrentUser()
+      .pipe(
+        tap((user) => this.session.setUser(user)),
+        switchMap(() => this.orgApi.getOrganizations()),
+      )
+      .subscribe({
+        next: (orgs) => this.finalizeLogin(orgs),
+        error: () => {
+          this.isLoading.set(false);
+          this.isAutoLogin.set(false);
+        },
+      });
+  }
 
   onSubmit() {
     if (this.loginForm.invalid) return;
     this.isLoading.set(true);
-    this.error.set(null);
 
-    const { username, password } = this.loginForm.value;
+    const { username, password, rememberMe } = this.loginForm.value;
 
     this.authApi
-      .login(username!, password!)
+      .login(username!, password!, rememberMe)
       .pipe(
         tap((response) => {
-          document.cookie = `token=${response.token};`; // updated on 24/11
           this.session.setUser(response.user);
         }),
         switchMap(() => this.orgApi.getOrganizations()),
       )
       .subscribe({
-        next: (orgs) => {
-          if (orgs.length === 0) {
-            this.errorService.showError(
-              403,
-              'No organizations found. Contact your admin.',
-            );
-            this.isLoading.set(false);
-            return;
-          }
-
-          this.session.setOrganizations(orgs);
-          this.session.selectOrganization(orgs[0].id);
-          this.router.navigate(['/dashboard']);
+        next: (orgs) => this.finalizeLogin(orgs),
+        error: () => {
           this.isLoading.set(false);
-        },
-        error: (err) => {
-          const msg = err.error?.message || 'Authentication Failed';
-          this.error.set(msg);
-          this.isLoading.set(false);
-          setTimeout(() => this.error.set(null), 3000);
         },
       });
+  }
+
+  private finalizeLogin(orgs: GetOrganizationResponseInterface[]) {
+    if (orgs.length === 0) {
+      this.errorService.showError(
+        403,
+        'No organizations found. Please contact your admin.',
+      );
+      this.isLoading.set(false);
+      return;
+    }
+
+    this.session.setOrganizations(orgs);
+    this.session.selectOrganization(orgs[0].id);
+
+    this.router.navigate(['/dashboard']);
+    this.isLoading.set(false);
   }
 }

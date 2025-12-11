@@ -5,10 +5,17 @@ import { In, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LoginDto } from '@api/dto/login.dto';
-import { AuthUserResponseDto } from '@api/dto/auth-user.dto';
 import { AuthUserInterface } from '@libs/data/type/auth-user.interface';
 import { UserEntity } from '@api/models/users.entity';
 import { OrganizationEntity } from '@api/models/organizations.entity';
+import { hashPassword } from '@api/helper/password-hash';
+import { CookieOptions } from 'express';
+
+export interface LoginResult {
+  token: string;
+  user: AuthUserInterface;
+  cookieOptions: CookieOptions;
+}
 
 @Injectable()
 export class AuthService {
@@ -22,13 +29,9 @@ export class AuthService {
   ) {}
 
   @Transactional()
-  async login(loginDto: LoginDto): Promise<AuthUserResponseDto> {
+  async login(loginDto: LoginDto): Promise<LoginResult> {
     const { username, password, rememberMe } = loginDto;
-
-    if (rememberMe) {
-      // TODO: create refresh token logic
-    }
-
+    console.log(rememberMe);
     const userDb = await this.userRepo.findOne({
       select: {
         id: true,
@@ -40,6 +43,7 @@ export class AuthService {
       where: { username },
       relations: { roles: true },
     });
+
     if (!userDb) {
       this.logger.warn('User not found, username: ' + loginDto.username);
       throw new UnauthorizedException('Invalid credentials');
@@ -51,17 +55,26 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const tokenLifeSeconds = +process.env.TOKEN_LIFE_SECONDS || 3600;
-    const expiryTimestamp = Math.floor(Date.now() / 1000) + tokenLifeSeconds;
+    const tokenLifeSeconds = rememberMe
+      ? 30 * 24 * 60 * 60 // one month
+      : +process.env.TOKEN_LIFE_SECONDS || 3600;
+    const expiryDate = new Date();
+    expiryDate.setTime(expiryDate.getTime() + tokenLifeSeconds * 1000);
+
+    const cookieOptions: CookieOptions = {};
+    if (rememberMe) {
+      cookieOptions.expires = expiryDate;
+      cookieOptions.maxAge = tokenLifeSeconds * 1000;
+    }
 
     const organizationsDb = await this.organizationRepo.find({
       where: { roles: { id: In(userDb.roles.map((el) => el.id)) } },
     });
-
     const authUser: AuthUserInterface = {
       id: userDb.id,
       email: userDb.email,
       name: userDb.name,
+      username: userDb.username,
       roles:
         userDb?.roles?.map((role) => {
           const organization = organizationsDb.find(
@@ -69,25 +82,28 @@ export class AuthService {
           );
           return {
             role: { id: role.id, name: role.name },
-            organization,
+            organization: { id: organization.id, name: organization.name },
           };
         }) || [],
-      tokenExpiry: expiryTimestamp,
+      tokenExpiry: Math.floor(expiryDate.getTime() / 1000),
     };
 
-    const payload = { user: authUser };
+    const payload = { sub: authUser.id, user: authUser };
     const secret = process.env.JWT_SECRET;
 
     const token = jwt.sign(payload, secret, {
       algorithm: 'HS256',
+      expiresIn: tokenLifeSeconds,
     });
 
     this.logger.log(`New token saved to DB for user: ${username}`);
-    await this.userRepo.update(userDb.id, { token });
+    const hashToken = await hashPassword(token);
+    await this.userRepo.update(userDb.id, { token: hashToken });
 
     return {
       token,
       user: authUser,
+      cookieOptions,
     };
   }
 

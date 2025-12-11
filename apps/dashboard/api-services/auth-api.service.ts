@@ -8,10 +8,12 @@ export class AuthApiService extends BaseApiService {
   login(
     username: string,
     password: string,
+    rememberMe: boolean,
   ): Observable<LoginResponseInterface> {
     return this.http.post<LoginResponseInterface>(`${this.apiUrl}/auth/login`, {
       username,
       password,
+      rememberMe,
     });
   }
 

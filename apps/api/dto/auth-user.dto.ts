@@ -7,8 +7,5 @@ export class AuthUserDto {
 }
 
 export class AuthUserResponseDto {
-  @IsString()
-  token: string;
-
   user: AuthUserInterface;
 }

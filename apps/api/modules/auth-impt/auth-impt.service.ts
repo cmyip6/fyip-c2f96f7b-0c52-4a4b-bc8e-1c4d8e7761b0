@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, In } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { UserEntity } from '@api/models/users.entity';
 import { TaskEntity } from '@api/models/tasks.entity';
@@ -9,6 +10,7 @@ import { ThrowLogoutResponse } from '@api/helper/throw-log-out-response';
 import { UserRoleOptions } from '@libs/data/type/user-role.enum';
 import { PermissionLevelOptions } from '@libs/data/type/permission-level.enum';
 import { UserTypeOptions } from '@libs/data/type/user-type.enum';
+import { AuthUserInterface } from '@libs/data/type/auth-user.interface';
 
 @Injectable()
 export class AuthImptService {
@@ -97,13 +99,25 @@ export class AuthImptService {
     return false;
   }
 
-  async isUserValid(userId: string): Promise<boolean> {
+  async isUserValid(userId: string, token: string): Promise<boolean> {
     const userRepo = this.dataSource.getRepository(UserEntity);
     const foundUser = await userRepo.findOne({
       where: { id: userId },
       relations: { roles: true },
     });
-    return foundUser && !!foundUser.roles?.length;
+
+    if (!userId || !foundUser) {
+      this.logger.warn('User is not valid');
+      return false;
+    }
+
+    if (!foundUser.token) {
+      this.logger.warn('User has no session');
+      return false;
+    }
+
+    const tokenIsValid = await bcrypt.compare(token, foundUser.token);
+    return foundUser && !!foundUser.roles?.length && tokenIsValid;
   }
 
   async isRoleValid(

@@ -15,8 +15,9 @@ import { ValidateResponse } from '@api/helper/response-validator';
 import { Viewer } from '@api/decorator/roles.decorator';
 import { User } from '@api/decorator/request-user.decorator';
 import { AuthUserInterface } from '@libs/data/type/auth-user.interface';
+import { JwtAuthGuard } from '@api/guard/jwt-auth-guard';
 
-@UseGuards(RolesGuard)
+@UseGuards(RolesGuard, JwtAuthGuard)
 @ApiBearerAuth()
 @Controller('organization')
 export class OrganizationController {

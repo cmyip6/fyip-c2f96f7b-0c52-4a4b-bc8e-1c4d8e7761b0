@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthUserInterface } from '@libs/data/type/auth-user.interface';
+import { UserApiService } from '../api-services/user-api.service';
 
 @Component({
   selector: 'app-not-found',
@@ -38,7 +38,7 @@ import { AuthUserInterface } from '@libs/data/type/auth-user.interface';
           <span
             class="text-sm font-semibold text-indigo-600 tracking-wide animate-pulse"
           >
-            VERIFYING TOKEN...
+            VERIFYING SESSION...
           </span>
         </div>
       </div>
@@ -47,69 +47,22 @@ import { AuthUserInterface } from '@libs/data/type/auth-user.interface';
 })
 export class NotFoundComponent implements OnInit {
   private router = inject(Router);
+  private api = inject(UserApiService);
 
   ngOnInit() {
-    const token = this.getCookie('token');
-
-    if (!token) {
-      this.redirectToLogin();
-      return;
-    }
-
-    const payload = this.decodeJwt(token);
-
-    if (!payload) {
-      this.redirectToLogin();
-      return;
-    }
-
-    const expiry = payload.tokenExpiry;
-
-    if (!expiry) {
-      this.redirectToLogin();
-      return;
-    }
-
-    const currentTime = Math.floor(Date.now() / 1000);
-
-    const normalizedExpiry =
-      expiry.toString().length > 10 ? Math.floor(expiry / 1000) : expiry;
-
-    if (normalizedExpiry > currentTime) {
-      this.router.navigate(['/dashboard']);
-    } else {
-      this.redirectToLogin();
-    }
+    setTimeout(() => {
+      this.api.getCurrentUser().subscribe({
+        next: () => {
+          this.router.navigate(['/dashboard']);
+        },
+        error: () => {
+          this.redirectToLogin();
+        },
+      });
+    }, 1500);
   }
 
   private redirectToLogin() {
-    document.cookie = 'token=; Max-Age=0; path=/;';
     this.router.navigate(['/login']);
-  }
-
-  private getCookie(name: string): string | null {
-    const match = document.cookie.match(
-      new RegExp('(^| )' + name + '=([^;]+)'),
-    );
-    return match ? match[2] : null;
-  }
-
-  private decodeJwt(token: string): AuthUserInterface {
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        window
-          .atob(base64)
-          .split('')
-          .map(function (c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-          })
-          .join(''),
-      );
-      return JSON.parse(jsonPayload);
-    } catch (e) {
-      return null;
-    }
   }
 }

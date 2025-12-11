@@ -21,12 +21,19 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         message = err.message;
       }
 
-      if (
-        statusCode === 401 &&
-        err.error?.action === ResponseActionOptions.LOGOUT
-      ) {
-        document.cookie = 'token=;';
-        router.navigate(['/login']);
+      if (statusCode === 401 && err.error?.action) {
+        switch (err.error.action) {
+          case ResponseActionOptions.LOGOUT: {
+            router.navigate(['/login']);
+            break;
+          }
+          case ResponseActionOptions.NULL: {
+            console.log('No active session');
+            return;
+          }
+          default:
+            break;
+        }
       }
 
       errorService.showError(statusCode, message);

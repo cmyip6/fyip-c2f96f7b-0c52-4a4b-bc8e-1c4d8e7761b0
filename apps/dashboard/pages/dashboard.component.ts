@@ -5,6 +5,7 @@ import {
   computed,
   effect,
   OnDestroy,
+  OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -20,6 +21,8 @@ import { TaskCardComponent } from '../components/task-card.component';
 import { TopBarComponent } from '../components/topBar/top-bar.component';
 import { ConfirmationModalComponent } from '../components/modals/confirmation-modal.component';
 import { GetTaskResponseInterface } from '@libs/data/type/get-task-response.interface';
+import { OrganizationApiService } from '../api-services/organization-api.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -404,8 +407,10 @@ import { GetTaskResponseInterface } from '@libs/data/type/get-task-response.inte
     `,
   ],
 })
-export class DashboardComponent implements OnDestroy {
+export class DashboardComponent implements OnDestroy, OnInit {
   private api = inject(TaskApiService);
+  private orgApi = inject(OrganizationApiService);
+  private router = inject(Router);
   session = inject(SessionService);
 
   tasks = signal<GetTaskResponseInterface[]>([]);
@@ -450,6 +455,20 @@ export class DashboardComponent implements OnDestroy {
         this.tasks.set([]);
       }
     });
+  }
+
+  ngOnInit() {
+    if (this.session.organizations().length === 0) {
+      this.orgApi.getOrganizations().subscribe({
+        next: (orgs) => {
+          if (orgs.length > 0) {
+            this.session.setOrganizations(orgs);
+            this.session.selectOrganization(orgs[0].id);
+          }
+        },
+        error: () => this.router.navigate(['/']),
+      });
+    }
   }
 
   ngOnDestroy() {
@@ -544,12 +563,11 @@ export class DashboardComponent implements OnDestroy {
     }
   }
 
-  // New drop event handler
   drop(event: CdkDragDrop<GetTaskResponseInterface[]>) {
     if (event.previousIndex === event.currentIndex) return;
 
     const currentTasks = [...this.tasks()];
-    // Optimistic UI update
+
     moveItemInArray(currentTasks, event.previousIndex, event.currentIndex);
     this.tasks.set(currentTasks);
 

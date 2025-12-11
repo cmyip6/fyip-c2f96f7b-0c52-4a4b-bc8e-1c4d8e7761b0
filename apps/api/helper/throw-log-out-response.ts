@@ -10,3 +10,10 @@ export function ThrowLogoutResponse(message?: string) {
     action: ResponseActionOptions.LOGOUT,
   });
 }
+
+export function ThrowSilentResponse() {
+  throw new UnauthorizedException({
+    statusCode: 401,
+    action: ResponseActionOptions.NULL,
+  });
+}

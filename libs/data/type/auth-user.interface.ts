@@ -7,6 +7,7 @@ export interface AuthUserInterface {
   id: string;
   email: string;
   name: string;
+  username: string;
   roles: OrganizationRoleInterface[];
   tokenExpiry: number;
 }
