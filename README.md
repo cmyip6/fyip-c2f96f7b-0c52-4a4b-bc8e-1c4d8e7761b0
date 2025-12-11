@@ -2,6 +2,11 @@
 
 Thank you so much for taking the time to review my project! Please follow the instructions below to set up the testing environment.
 
+# Branch
+
+main ( Submitted version )
+feat/jwt-refactor ( Refactored jwt token handling with HttpOnly cookie, improved logic handling and remember me functionality )
+
 # Prerequisites
 
 - **Docker** (with Docker Engine running)
