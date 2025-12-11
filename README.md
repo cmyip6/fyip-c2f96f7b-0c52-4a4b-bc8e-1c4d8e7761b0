@@ -4,8 +4,8 @@ Thank you so much for taking the time to review my project! Please follow the in
 
 # Branch
 
-main ( Submitted version )
-feat/jwt-refactor ( Refactored jwt token handling with HttpOnly cookie, improved logic handling and remember me functionality )
+1. main ( Submitted version )
+2. feat/jwt-refactor ( Refactored jwt token handling with HttpOnly cookie, improved logic handling and remember me functionality )
 
 # Prerequisites
 
