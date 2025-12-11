@@ -6,24 +6,31 @@ interface FunctionType {
   (): void;
 }
 
-export const DecoratedSuites: {
+export declare const DecoratedSuites: {
   [suiteName: string]: {
-    title: string | null;
+    title?: string;
+    target?: ConstructorType;
     parallel: boolean;
-    target: ConstructorType | null;
-    tests: Array<{ method: FunctionType; description: string }>;
+    tests: Array<{
+      method: FunctionType;
+      description: string;
+    }>;
   };
-} = {};
+};
 
-export const TestSuite = (title: string, parallel = false) => (target: ConstructorType): void => {
+export const TestSuite =
+  (title: string, parallel = false) =>
+  (target: ConstructorType): void => {
     target.prototype.title = title;
-    if (!DecoratedSuites.hasOwnProperty(target.name))
-      {DecoratedSuites[target.name] = { tests: [], title, parallel, target };}
+    if (!DecoratedSuites.hasOwnProperty(target.name)) {
+      DecoratedSuites[target.name] = { tests: [], title, parallel, target };
+    }
     DecoratedSuites[target.name].title = title;
     DecoratedSuites[target.name].parallel = parallel;
     DecoratedSuites[target.name].target = target;
   };
 
+/* eslint-disable  @typescript-eslint/ban-types */
 export function Test(description: string): MethodDecorator {
   return (
     target: object,
@@ -31,13 +38,12 @@ export function Test(description: string): MethodDecorator {
     descriptor: PropertyDescriptor,
   ): void => {
     const className = target.constructor.name;
-    if (!DecoratedSuites.hasOwnProperty(className))
-      {DecoratedSuites[className] = {
+    if (!DecoratedSuites.hasOwnProperty(className)) {
+      DecoratedSuites[className] = {
         tests: [],
-        target: null,
-        title: null,
         parallel: false,
-      };}
+      };
+    }
     DecoratedSuites[className].tests.push({
       description,
       method: descriptor.value,
