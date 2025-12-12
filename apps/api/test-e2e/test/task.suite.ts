@@ -1,19 +1,26 @@
 import { Test, TestSuite } from '../modules/jest-test.decorator';
-import { Logger, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { BaseTest } from './base-test';
+import { UserSuite } from './user.suite';
 
+@Injectable()
 @TestSuite('Task Suite')
-export class TaskE2eSpec extends BaseTest implements OnModuleInit {
-  private readonly logger = new Logger(TaskE2eSpec.name);
+export class TaskSuite extends BaseTest implements OnModuleInit {
+  private readonly logger = new Logger(TaskSuite.name);
+
+  constructor(@Inject(UserSuite) private readonly userSuite: UserSuite) {
+    super();
+  }
 
   onModuleInit(): void {
-    this.logger.debug('TaskE2eSpec initialized');
+    this.logger.debug('Task Suite initialized');
     this.setUrl('/tasks');
   }
 
   @Test('Create Task')
   async createTask(): Promise<void> {
-    console.log('Testing in progress');
+    // const user = await this.userSuite.createUser();
+
     this.logger.debug('generate user token');
   }
 }

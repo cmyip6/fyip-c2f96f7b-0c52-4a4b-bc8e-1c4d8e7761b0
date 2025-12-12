@@ -47,8 +47,11 @@ export class PoliciesGuard implements CanActivate {
     const requestUser = request.user;
 
     this.logger.verbose('Checking for each defined path');
-    for (const { permission, entityType, path } of policyHandlers) {
+    for (const { permission, entityType, path, optional } of policyHandlers) {
       const entityId = getEntityValue(request, path);
+      if (optional && !entityId) {
+        continue;
+      }
       const res = await this.authImptService.userIsAuthorized(
         requestUser.id,
         entityType,

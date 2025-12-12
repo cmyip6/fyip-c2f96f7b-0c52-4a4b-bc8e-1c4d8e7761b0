@@ -12,7 +12,7 @@ import { UserEntity } from '../../models/users.entity';
 import { RoleEntity } from '../../models/roles.entity';
 import { PermissionEntity } from '../../models/permissions.entity';
 import { OrganizationRelationEntity } from '../../models/organization-relation.entity';
-
+import { FactoriesModule } from './factories.module';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -28,8 +28,6 @@ import { OrganizationRelationEntity } from '../../models/organization-relation.e
             OrganizationRelationEntity,
           ],
         });
-
-        console.log(config);
         return config;
       },
       dataSourceFactory: async (options) => {
@@ -39,6 +37,7 @@ import { OrganizationRelationEntity } from '../../models/organization-relation.e
       },
     }),
     TaskManagementModule,
+    FactoriesModule,
   ],
 })
 export class TestModule {}

@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsEmail,
@@ -45,19 +45,20 @@ export class CreateUserDto {
   @IsString()
   name: string;
 
-  @ApiProperty({
-    description: 'Role id',
-    type: Number,
-  })
   @IsNumber()
-  @IsOptional()
-  roleId?: number;
+  roleId: number;
 
-  @ApiProperty({
-    description: 'Organization id',
-    type: Number,
-  })
   @IsNumber()
-  @IsOptional()
-  organizationId?: number;
+  organizationId: number;
+}
+
+export class CreateUserResponseDto extends PickType(CreateUserDto, [
+  'email',
+  'name',
+  'username',
+  'roleId',
+  'organizationId',
+]) {
+  @IsNumber()
+  id: number;
 }

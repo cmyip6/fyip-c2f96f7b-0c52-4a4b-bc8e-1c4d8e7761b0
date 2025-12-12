@@ -8,8 +8,7 @@
   "files": ["main.ts"],
   "exclude": [
     "jest.config.ts",
-    "**/*.suite.ts",
-    "**/*.e2e-spec.ts",
-    "test-e2e/**/*"
+    "**/*.e2e-spec.ts"
+    // "**/*.suite.ts",
   ]
 }

@@ -13,7 +13,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { OrganizationService } from '../organization/organization.service';
 import { RoleService } from '../role/role.service';
 import { GetUserReponseDto } from '@api/dto/get-user-response.dto';
-import { CreateUserDto } from '@api/dto/create-user.dto';
+import { CreateUserDto, CreateUserResponseDto } from '@api/dto/create-user.dto';
 import { AuthUserDto } from '@api/dto/auth-user.dto';
 import { RefreshTokenDto } from '@api/dto/refresh-token.dto';
 import { UserEntity } from '@api/models/users.entity';
@@ -40,7 +40,7 @@ export class UserService {
   }
 
   @Transactional()
-  async createUser(dto: CreateUserDto): Promise<GetUserReponseDto> {
+  async createUser(dto: CreateUserDto): Promise<CreateUserResponseDto> {
     this.logger.debug(`Creating user ${dto.name}`);
     let organizationId = null;
     let roleId = null;
@@ -76,7 +76,7 @@ export class UserService {
       roleId,
     });
 
-    return plainToInstance(GetUserReponseDto, ret);
+    return plainToInstance(CreateUserResponseDto, ret);
   }
 
   async getUserById(

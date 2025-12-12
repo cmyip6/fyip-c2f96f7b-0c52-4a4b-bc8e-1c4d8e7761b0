@@ -62,7 +62,6 @@ const initTestingNest = async (): Promise<INestApplication> => {
   const url = `${protocol}://${host}:${port}`;
   app.use(cookieParser());
   app.enableCors({
-    origin: ['http://localhost:4201', url],
     credentials: true,
   });
   app.setGlobalPrefix('api');
@@ -92,9 +91,7 @@ const initTestingNest = async (): Promise<INestApplication> => {
 
   await app.listen(port);
 
-  Logger.log(
-    `Testing Application is running on: ${protocol}://${host}:${port}/api`,
-  );
+  Logger.log(`Testing Application is running on: ${url}/api`);
 
   return app;
 };
@@ -135,9 +132,16 @@ describe('E2E Test Runner', () => {
             throw e;
           } finally {
             const duration = moment().diff(start);
-            logger.log(
-              `${success ? '✅' : '❌'} Finished: [${duration}ms] ${testMeta.description}`,
-            );
+
+            if (success) {
+              logger.log(
+                `✅ Finished: [${duration}ms] ${testMeta.description}`,
+              );
+            } else {
+              logger.error(
+                `❌ Finished: [${duration}ms] ${testMeta.description}`,
+              );
+            }
           }
         });
       }

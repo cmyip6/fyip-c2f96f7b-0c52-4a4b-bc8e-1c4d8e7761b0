@@ -9,10 +9,16 @@ import { RoleService } from '../role/role.service';
 import { OrganizationEntity } from '@api/models/organizations.entity';
 import { RoleEntity } from '@api/models/roles.entity';
 import { UserEntity } from '@api/models/users.entity';
+import { OrganizationRelationEntity } from '@api/models/organization-relation.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, RoleEntity, OrganizationEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      RoleEntity,
+      OrganizationEntity,
+      OrganizationRelationEntity,
+    ]),
     OrganizationModule,
     RoleModule,
   ],

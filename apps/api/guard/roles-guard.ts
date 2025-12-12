@@ -69,10 +69,16 @@ export class RolesGuard implements CanActivate {
       return false;
     }
 
-    return await this.authorizationImplService.isRoleValid(
+    const isRoleValid = await this.authorizationImplService.isRoleValid(
       user.id,
       organizationId,
       roles,
     );
+
+    const isSuperUser = await this.authorizationImplService.isSuperUser(
+      user.id,
+    );
+
+    return isRoleValid || isSuperUser;
   }
 }

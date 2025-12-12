@@ -10,7 +10,6 @@ import { ThrowLogoutResponse } from '@api/helper/throw-log-out-response';
 import { UserRoleOptions } from '@libs/data/type/user-role.enum';
 import { PermissionLevelOptions } from '@libs/data/type/permission-level.enum';
 import { UserTypeOptions } from '@libs/data/type/user-type.enum';
-import { AuthUserInterface } from '@libs/data/type/auth-user.interface';
 
 @Injectable()
 export class AuthImptService {
@@ -117,7 +116,12 @@ export class AuthImptService {
     }
 
     const tokenIsValid = await bcrypt.compare(token, foundUser.token);
-    return foundUser && !!foundUser.roles?.length && tokenIsValid;
+    return (
+      foundUser &&
+      (!!foundUser.roles?.length ||
+        foundUser.userType === UserTypeOptions.SUPER_USER) &&
+      tokenIsValid
+    );
   }
 
   async isRoleValid(
@@ -129,6 +133,14 @@ export class AuthImptService {
     return await userRepo.existsBy({
       id: userId,
       roles: { name: In(roles), organizationId },
+    });
+  }
+
+  async isSuperUser(userId: string): Promise<boolean> {
+    const userRepo = this.dataSource.getRepository(UserEntity);
+    return await userRepo.existsBy({
+      id: userId,
+      userType: UserTypeOptions.SUPER_USER,
     });
   }
 }
