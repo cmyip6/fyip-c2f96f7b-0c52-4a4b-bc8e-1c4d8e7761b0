@@ -31,7 +31,6 @@ export class AuthService {
   @Transactional()
   async login(loginDto: LoginDto): Promise<LoginResult> {
     const { username, password, rememberMe } = loginDto;
-    console.log(rememberMe);
     const userDb = await this.userRepo.findOne({
       select: {
         id: true,

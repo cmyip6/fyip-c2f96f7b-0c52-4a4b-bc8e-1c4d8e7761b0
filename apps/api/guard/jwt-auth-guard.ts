@@ -31,13 +31,9 @@ export class JwtAuthGuard implements CanActivate {
       this.logger.verbose('User existed from request, validating user...');
       const { user, token } = request;
       const isValid = await this.authImplService.isUserValid(user.id, token);
-      console.log('🚀 ~ JwtAuthGuard ~ canActivate ~ isValid:', isValid);
       const currentTime = Math.floor(Date.now() / 1000) + 10;
       const tokenExpired = !user?.tokenExpiry || user.tokenExpiry < currentTime;
-      console.log(
-        '🚀 ~ JwtAuthGuard ~ canActivate ~ tokenExpired:',
-        tokenExpired,
-      );
+
       if (isValid && !tokenExpired) {
         this.logger.verbose('User is valid, access granted');
         return true;
