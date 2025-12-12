@@ -1,7 +1,0 @@
-module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  testMatch: ['<rootDir>/test/test.entrypoint.ts'],
-  injectGlobals: true,
-  verbose: true,
-};

@@ -1,8 +1,8 @@
-name: task-management-db
+name: task-management-test-db
 services:
   db:
     image: postgres:16
-    container_name: demo
+    container_name: demo-testing
     restart: always
     # env_file:
     #   - ../../../../.env
@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
     ports:
-      - '5432:5432'
+      - '5433:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

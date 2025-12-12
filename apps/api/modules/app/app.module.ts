@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
-import { testDataSourceConfig } from '../../database/dbconfig';
+import { dataSourceConfig } from '../../database/dbconfig';
 import * as migrations from '../../database/migrations';
 import { TaskManagementModule } from '../../task-management.module';
 
@@ -17,7 +17,7 @@ import { OrganizationRelationEntity } from '../../models/organization-relation.e
   imports: [
     TypeOrmModule.forRootAsync({
       useFactory: async () => {
-        const config = testDataSourceConfig({
+        return dataSourceConfig({
           migrations: Object.values(migrations),
           entities: [
             OrganizationEntity,
@@ -28,9 +28,6 @@ import { OrganizationRelationEntity } from '../../models/organization-relation.e
             OrganizationRelationEntity,
           ],
         });
-
-        console.log(config);
-        return config;
       },
       dataSourceFactory: async (options) => {
         if (!options) throw new Error('Invalid options');
@@ -41,4 +38,4 @@ import { OrganizationRelationEntity } from '../../models/organization-relation.e
     TaskManagementModule,
   ],
 })
-export class TestModule {}
+export class AppModule {}

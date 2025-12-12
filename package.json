@@ -14,10 +14,13 @@
     "install-all": "npm i && cd apps/api && npm i && cd apps/dashboard && npm i && cd ../../",
     "api:db:setup": "docker compose --env-file .env -f apps/api/database/docker/docker-compose.yml up -d",
     "api:db:setdown": "docker compose --env-file .env -f apps/api/database/docker/docker-compose.yml down",
+    "api:test:db:setup": "docker compose --env-file .env.test -f apps/api/test-e2e/docker/test-docker-compose.yml up -d",
+    "api:test:db:setdown": "docker compose --env-file .env.test -f apps/api/test-e2e/docker/test-docker-compose.yml down",
     "typeorm": "ts-node -r tsconfig-paths/register --project apps/api/database/docker/tsconfig.typeorm.json node_modules/typeorm/cli.js -d apps/api/database/docker/ormconfig.ts",
     "migration:generate": "npm run typeorm -- migration:generate",
     "migration:run": "npm run typeorm -- migration:run",
-    "migration:revert": "npm run typeorm -- migration:revert"
+    "migration:revert": "npm run typeorm -- migration:revert",
+    "api:test:e2e": "cross-env NODE_ENV=test jest --config apps/api/test-e2e/jest-e2e.json.ts --forceExit"
   },
   "private": true,
   "devDependencies": {
@@ -39,6 +42,7 @@
     "@typescript-eslint/parser": "^8.47.0",
     "@typescript-eslint/utils": "^8.40.0",
     "angular-eslint": "^20.3.0",
+    "cross-env": "^10.1.0",
     "esbuild": "^0.19.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",

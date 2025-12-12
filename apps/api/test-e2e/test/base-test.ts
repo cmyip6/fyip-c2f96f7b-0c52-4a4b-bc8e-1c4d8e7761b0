@@ -1,13 +1,12 @@
 import { INestApplication, Logger } from '@nestjs/common';
 import * as request from 'supertest';
 import { Test as TestResponse } from 'supertest';
-import './expect-extender';
 
 export class BaseTest {
   private _app: INestApplication | null = null;
   public url: string = '';
 
-  private readonly logger = new Logger(BaseTest.name);
+  private readonly baseLogger = new Logger(BaseTest.name);
 
   public setApp(app: INestApplication): void {
     this._app = app;
@@ -19,7 +18,9 @@ export class BaseTest {
 
   private get app(): INestApplication {
     if (!this._app) {
-      this.logger.error('Application instance is not set in the test class');
+      this.baseLogger.error(
+        'Application instance is not set in the test class',
+      );
       throw new Error('Application instance is not set in the test class');
     }
     return this._app;

@@ -34,3 +34,35 @@ export const dataSourceConfig = ({
     },
   };
 };
+
+export const testDataSourceConfig = ({
+  migrations,
+  entities = [],
+  migrationsTableName = CUSTOM_MIGRATION_TABLE,
+}: {
+  migrations?: MixedList<Function | string>;
+  entities?: MixedList<Function | string | EntitySchema>;
+  migrationsTableName?: string;
+}): DataSourceOptions => {
+  return {
+    type: 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.TEST_DB_PORT || '5433', 10),
+    username: process.env.TEST_POSTGRES_USER,
+    password: process.env.TEST_POSTGRES_PASSWORD,
+    database: process.env.TEST_POSTGRES_DB,
+    migrationsTableName,
+    entities: entities ?? ['apps/api/models/*.entity.ts'],
+    migrations: migrations ?? ['apps/database/migrations/*.ts'],
+    name: CONNECTION_NAME,
+    logging: process.env.NODE_ENV === 'test',
+    maxQueryExecutionTime: 6000,
+
+    extra: {
+      max: 20,
+      min: 4,
+      idleTimeoutMillis: 240000,
+      connectionTimeoutMillis: 2000,
+    },
+  };
+};

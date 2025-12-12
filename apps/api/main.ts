@@ -11,9 +11,9 @@ import {
   getDataSourceByName,
   initializeTransactionalContext,
 } from 'typeorm-transactional';
-import { TaskManagementModule } from './task-management.module';
 import { CONNECTION_NAME } from './database/dbconfig';
 import { TypeORMMigrations } from './helper/typeorm-migration';
+import { AppModule } from './modules/app/app.module';
 
 const DROP_SCHEMA = process.env['DROP_SCHEMA'] === 'true';
 const RUN_MIGRATIONS = process.env['RUN_MIGRATIONS'] === 'true';
@@ -26,8 +26,7 @@ const cookieParser = require('cookie-parser');
 async function bootstrap(): Promise<void> {
   initializeTransactionalContext();
 
-  const app =
-    await NestFactory.create<NestExpressApplication>(TaskManagementModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   const dataSource = getDataSourceByName(CONNECTION_NAME);
   if (!dataSource) {
