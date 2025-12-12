@@ -39,7 +39,22 @@ export class RolesGuard implements CanActivate {
     }
     const { user } = request;
 
-    if (!user) return false;
+    if (!user) {
+      this.logger.error(
+        'User is not in request. Unable to verify roles, access denied.',
+      );
+      return false;
+    }
+
+    const isSuperUser = await this.authorizationImplService.isSuperUser(
+      user.id,
+    );
+
+    if (isSuperUser) {
+      this.logger.debug('User is a superuser, access granted.');
+      return true;
+    }
+
     if (!user.roles.length) return false;
 
     const { path, roles, entityType } = handler;
@@ -69,16 +84,10 @@ export class RolesGuard implements CanActivate {
       return false;
     }
 
-    const isRoleValid = await this.authorizationImplService.isRoleValid(
+    return await this.authorizationImplService.isRoleValid(
       user.id,
       organizationId,
       roles,
     );
-
-    const isSuperUser = await this.authorizationImplService.isSuperUser(
-      user.id,
-    );
-
-    return isRoleValid || isSuperUser;
   }
 }

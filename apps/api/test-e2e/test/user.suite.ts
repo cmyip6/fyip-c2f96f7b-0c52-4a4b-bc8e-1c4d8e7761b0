@@ -66,12 +66,12 @@ export class UserSuite extends BaseTest implements OnModuleInit {
     ).expect(HttpStatus.CREATED);
     expect(createRoleResponse.id).toBeDefined();
 
-    this.logger.debug('Creat a module user and assigned an admin role');
+    this.logger.debug('Creat a module user and assign an admin role');
     const createModuleUserDto = this.userFactory.createFakeUserDto(
       createRoleResponse.id,
       createOrgResponse.id,
     );
-    const { body: createModuleUserResponse, headers } = await this.post(
+    const { body: createModuleUserResponse } = await this.post(
       '',
       createModuleUserDto,
       this.superUserCookies,

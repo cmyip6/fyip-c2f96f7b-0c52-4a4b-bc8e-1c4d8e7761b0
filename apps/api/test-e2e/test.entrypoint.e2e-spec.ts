@@ -34,8 +34,8 @@ const DROP_SCHEMA = process.env['DROP_SCHEMA'] === 'true';
 const RUN_MIGRATIONS = process.env['RUN_MIGRATIONS'] === 'true';
 const RUN_SEEDS = process.env['RUN_SEEDS'] === 'true';
 const port = process.env.TEST_API_PORT || 4201;
-const host = process.env.API_HOST || 'localhost';
-const protocol = process.env.API_PROTOCOL || 'http';
+const host = process.env.TEST_API_HOST || 'localhost';
+const protocol = process.env.TEST_API_PROTOCOL || 'http';
 
 const initTestingNest = async (): Promise<INestApplication> => {
   initializeTransactionalContext({ maxHookHandlers: 500 });
