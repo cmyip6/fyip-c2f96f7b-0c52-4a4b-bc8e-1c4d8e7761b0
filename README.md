@@ -6,6 +6,7 @@ Thank you so much for taking the time to review my project! Please follow the in
 
 1. main ( Submitted version )
 2. feat/jwt-refactor ( Refactored jwt token handling with HttpOnly cookie, improved logic handling and remember me functionality )
+3. fix/e2e-test (Merged feat/jwt-refactor, added e2e testing env setup and some test cases, added some missing services and routes)
 
 # Prerequisites
 
@@ -73,7 +74,8 @@ This project utilizes an Nx Monorepo structure to ensure code sharing, type safe
       └── nx.json                 # Monorepo configuration
 
 ## Rationale
-1. **Single Source of Truth:** The libs/data library contains TypeScript interfaces used by both the API (to define Entities) and the Frontend (to type HTTP responses). If    the API changes, the Frontend build fails immediately, preventing runtime errors.
+
+1. **Single Source of Truth:** The libs/data library contains TypeScript interfaces used by both the API (to define Entities) and the Frontend (to type HTTP responses). If the API changes, the Frontend build fails immediately, preventing runtime errors.
 
 2. **Modular Design:** Authentication logic is isolated, making it easier to test or extract into a microservice later.
 
@@ -142,18 +144,21 @@ This project utilizes an Nx Monorepo structure to ensure code sharing, type safe
 # API Documentation
 
 ## Authentication
+
 | Method   | Endpoint       | Description                       | Payload                                    |
 | -------- | -------------- | --------------------------------- | ------------------------------------------ |
 | **POST** | `/auth/login`  | Authenticate user & return token  | `{ "username": "...", "password": "..." }` |
 | **POST** | `/auth/logout` | Invalidate session (cookie-based) | `{}`                                       |
 
 ## User & Organization
+
 | Method  | Endpoint        | Description                        |
 | ------- | --------------- | ---------------------------------- |
 | **GET** | `/user`         | Get current authenticated user     |
 | **GET** | `/organization` | Get organizations assigned to user |
 
 ## Task
+
 | Method     | Endpoint                 | Description                | Query / Body                                   |
 | ---------- | ------------------------ | -------------------------- | ---------------------------------------------- |
 | **GET**    | `/task/organization/:id` | Get paginated tasks        | `?pageNumber=1&pageSize=9&search=...`          |
@@ -162,6 +167,7 @@ This project utilizes an Nx Monorepo structure to ensure code sharing, type safe
 | **DELETE** | `/task/:id`              | Delete task ( sofe )       | —                                              |
 
 ## Sample Response — Get Tasks
+
       {
         "data": [
           {
@@ -178,7 +184,6 @@ This project utilizes an Nx Monorepo structure to ensure code sharing, type safe
         }
       }
 
-
 # For testing the feature
 
 Please use the following users for your testing purposes. They are automatically seeded when you set `RUN_SEEDS` to `true` before you start the API.
@@ -193,13 +198,13 @@ Please use the following users for your testing purposes. They are automatically
 
 ## Feature Highlights
 
-1.  **Authentication:** Login page with token control. Once a user logs in, a token will be saved to a cookie for injecting into the headers of all subsequent         requests. Upon token expiration, the user will be logged out upon performing actions.
-    - _Testing Tip:_ You can set `TOKEN_LIFE_SECONDS` to `20` seconds and re-login the user. The user should be logged out when performing any actions after 10 seconds     (due to a 10-second buffer).
+1.  **Authentication:** Login page with token control. Once a user logs in, a token will be saved to a cookie for injecting into the headers of all subsequent requests. Upon token expiration, the user will be logged out upon performing actions.
+    - _Testing Tip:_ You can set `TOKEN_LIFE_SECONDS` to `20` seconds and re-login the user. The user should be logged out when performing any actions after 10 seconds (due to a 10-second buffer).
 
-2.  **Dashboard:** Once the user successfully logs in, the page will be redirected to a dashboard where the user can perform task-related actions (Read, Create, Update     & Delete). Each action has its own guard and restrictions, and each restriction is linked to the role of the user in each organization.
+2.  **Dashboard:** Once the user successfully logs in, the page will be redirected to a dashboard where the user can perform task-related actions (Read, Create, Update & Delete). Each action has its own guard and restrictions, and each restriction is linked to the role of the user in each organization.
 
 3.  **Topbar:**
-    - **Organization Dropdown:** Allows changing organizations (2 organizations are seeded). Users without permissions assigned to the role, or without a role assigned     to the user, will not be able to see the organization in the dropdown list.
+    - **Organization Dropdown:** Allows changing organizations (2 organizations are seeded). Users without permissions assigned to the role, or without a role assigned to the user, will not be able to see the organization in the dropdown list.
     - **Profile:** On the right, there is a profile button leading to a modal where the user can view their information (including their role in the selected organization) and perform logout actions.
 
 4.  **Task Card:** From the dashboard, the user can create a task by clicking the "Initialize Task" button. Once the task is created, the user will be able to:
@@ -213,10 +218,10 @@ As explained above, all API actions are guarded by different permission controls
 
 1. **Organization Hierarchy:**
 
-1.  **JWT Guards:** Token must be present and valid. See jwtAuthGuard interceptor
-2.  **Roles Guard:** Role required to access certain endpoints. See  @Roles() decorator 
-3.  **Policy Guard:** Checks the permission level (Create, Update, Read, Delete) associated with the role in the organization. See @CheckPolicies() decorator
-4.  **Response Validation:** A response validation interceptor was implemented to ensure response DTOs match the defined structure. See @ValidateResponse() decorator
+1. **JWT Guards:** Token must be present and valid. See jwtAuthGuard interceptor
+1. **Roles Guard:** Role required to access certain endpoints. See @Roles() decorator
+1. **Policy Guard:** Checks the permission level (Create, Update, Read, Delete) associated with the role in the organization. See @CheckPolicies() decorator
+1. **Response Validation:** A response validation interceptor was implemented to ensure response DTOs match the defined structure. See @ValidateResponse() decorator
 
 _Note: Current implementation is only focusing on task-related control._
 
