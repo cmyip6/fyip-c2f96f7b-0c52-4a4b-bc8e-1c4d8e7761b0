@@ -10,6 +10,7 @@ import { OrganizationEntity } from '@api/models/organizations.entity';
 import { RoleEntity } from '@api/models/roles.entity';
 import { UserEntity } from '@api/models/users.entity';
 import { OrganizationRelationEntity } from '@api/models/organization-relation.entity';
+import { PermissionEntity } from '@api/models/permissions.entity';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { OrganizationRelationEntity } from '@api/models/organization-relation.en
       RoleEntity,
       OrganizationEntity,
       OrganizationRelationEntity,
+      PermissionEntity,
     ]),
     OrganizationModule,
     RoleModule,

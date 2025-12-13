@@ -40,26 +40,17 @@ export class UserService {
   }
 
   @Transactional()
-  async createUser(dto: CreateUserDto): Promise<CreateUserResponseDto> {
+  async createUser(
+    dto: CreateUserDto,
+    userId: string,
+  ): Promise<CreateUserResponseDto> {
     this.logger.debug(`Creating user ${dto.name}`);
     let organizationId = null;
-    let roleId = null;
-
-    if (dto?.organizationId) {
-      const orgDb = await this.orgnaizationService.findOneById(
-        dto.organizationId,
-      );
-      if (!orgDb) {
-        throw new NotFoundException(
-          'Organization is not found' + dto.organizationId,
-        );
-      }
-      organizationId = orgDb.id;
-    }
+    const roles = [];
 
     if (dto?.roleId) {
       const roleDb = await this.roleService.findOneById(dto.roleId);
-      roleId = roleDb.id;
+      roles.push(roleDb);
     }
 
     if (await this.repoUser.existsBy({ username: dto.username })) {
@@ -72,8 +63,10 @@ export class UserService {
       passwordHash,
       email: dto.email,
       name: dto.name,
-      organizationId,
-      roleId,
+      organization: { id: organizationId },
+      roles,
+      createdBy: userId,
+      updatedBy: userId,
     });
 
     return plainToInstance(CreateUserResponseDto, ret);

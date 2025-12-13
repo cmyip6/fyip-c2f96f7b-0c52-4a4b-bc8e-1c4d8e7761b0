@@ -16,8 +16,8 @@ export class OrganizationFactory {
     return {
       name: faker.company.name(),
       description: faker.lorem.sentence({
-        min: 10,
-        max: PropertyLength.DESCRIPTION,
+        min: 1,
+        max: 10,
       }),
       parentOrganizationId: option?.parentOrganizationId,
       childOrganizationId: option?.childOrganizationId,

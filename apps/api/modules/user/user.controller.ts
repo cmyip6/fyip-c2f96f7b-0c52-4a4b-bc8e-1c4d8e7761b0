@@ -56,16 +56,13 @@ export class UserController {
 
   @Post()
   @CheckPolicies(
-    new PoliciesExecutor(EntityTypeOptions.ORGANIZATION).Update(
-      'body.organizationId',
-    ),
+    new PoliciesExecutor(EntityTypeOptions.ROLE).Update('body.roleId'),
   )
-  @Owner('body.organizationId')
+  @Owner('body.roleId', EntityTypeOptions.ROLE)
   async createUser(
     @User() user: AuthUserInterface,
     @Body() dto: CreateUserDto,
   ): Promise<CreateUserResponseDto> {
-    this.logger.log('User token is valid, returning user' + user.id);
-    return await this.usersService.createUser(dto);
+    return await this.usersService.createUser(dto, user.id);
   }
 }

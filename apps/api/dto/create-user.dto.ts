@@ -4,7 +4,6 @@ import {
   IsEmail,
   IsNotEmpty,
   IsNumber,
-  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -47,9 +46,6 @@ export class CreateUserDto {
 
   @IsNumber()
   roleId: number;
-
-  @IsNumber()
-  organizationId: number;
 }
 
 export class CreateUserResponseDto extends PickType(CreateUserDto, [
@@ -57,7 +53,6 @@ export class CreateUserResponseDto extends PickType(CreateUserDto, [
   'name',
   'username',
   'roleId',
-  'organizationId',
 ]) {
   @IsNumber()
   id: number;

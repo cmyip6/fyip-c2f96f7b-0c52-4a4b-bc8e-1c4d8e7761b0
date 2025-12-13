@@ -5,10 +5,12 @@ import {
   IsOptional,
   IsString,
   MaxLength,
+  ValidateNested,
 } from 'class-validator';
 import { PermissionLevelOptions } from '../../../libs/data/type/permission-level.enum';
 import { PropertyLength } from '../../../libs/data/const/length.const';
 import { EntityTypeOptions } from '../../../libs/data/type/entity-type.enum';
+import { Type } from 'class-transformer';
 
 class PermissionDto {
   @IsEnum(PermissionLevelOptions)
@@ -19,12 +21,14 @@ class PermissionDto {
 }
 
 class PermissionsDto {
-  @IsEnum(PermissionLevelOptions, { each: true })
+  @Type(() => PermissionDto)
+  @ValidateNested({ each: true })
   @IsOptional()
   @IsArray()
   insert?: PermissionDto[];
 
-  @IsEnum(PermissionLevelOptions, { each: true })
+  @Type(() => PermissionDto)
+  @ValidateNested({ each: true })
   @IsOptional()
   @IsArray()
   delete?: PermissionDto[];
@@ -41,7 +45,8 @@ export class UpdateRoleDto {
   @MaxLength(PropertyLength.DESCRIPTION)
   description?: string;
 
-  @IsEnum(PermissionLevelOptions)
+  @Type(() => PermissionsDto)
+  @ValidateNested()
   @IsOptional()
   permissions?: PermissionsDto;
 

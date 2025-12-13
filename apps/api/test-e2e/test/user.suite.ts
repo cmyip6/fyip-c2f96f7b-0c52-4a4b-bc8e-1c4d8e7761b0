@@ -13,6 +13,7 @@ import { UserRoleOptions } from '../../../../libs/data/type/user-role.enum';
 import { CreateUserResponseDto } from '../../dto/create-user.dto';
 import { LoginDto } from '../../dto/login.dto';
 import { CreateOrganizationResponseDto } from '../../dto/create-organization.dto';
+import { UserTypeOptions } from '@libs/data/type/user-type.enum';
 
 @Injectable()
 @TestSuite('User Suite')
@@ -31,7 +32,7 @@ export class UserSuite extends BaseTest implements OnModuleInit {
   }
 
   @Test('Create User')
-  async createUser(): Promise<{
+  async createUser(role: UserRoleOptions = UserRoleOptions.OWNER): Promise<{
     loginDto: LoginDto;
     organization: CreateOrganizationResponseDto;
     role: CreateUserResponseDto;
@@ -57,7 +58,7 @@ export class UserSuite extends BaseTest implements OnModuleInit {
     this.logger.debug('Creating role');
     const createRoleDto = this.roleFactory.createFakeRoleDto(
       createOrgResponse.id,
-      UserRoleOptions.OWNER,
+      role,
     );
     const { body: createRoleResponse } = await this.post(
       '/role',
@@ -69,7 +70,6 @@ export class UserSuite extends BaseTest implements OnModuleInit {
     this.logger.debug('Creat a module user and assign an admin role');
     const createModuleUserDto = this.userFactory.createFakeUserDto(
       createRoleResponse.id,
-      createOrgResponse.id,
     );
     const { body: createModuleUserResponse } = await this.post(
       '',
@@ -77,6 +77,12 @@ export class UserSuite extends BaseTest implements OnModuleInit {
       this.superUserCookies,
     ).expect(HttpStatus.CREATED);
     expect(createModuleUserResponse.id).toBeDefined();
+    expect(createModuleUserResponse.username).toBe(
+      createModuleUserDto.username,
+    );
+    expect(createModuleUserResponse.name).toBe(createModuleUserDto.name);
+    expect(createModuleUserResponse.email).toBe(createModuleUserDto.email);
+    expect(createModuleUserResponse.userType).toBe(UserTypeOptions.MODULE_USER);
 
     return {
       loginDto: {

@@ -88,6 +88,20 @@ export class AuthImptService {
           permission,
         });
       }
+      case EntityTypeOptions.ROLE: {
+        const foundRole = userRoles.find((el) => el.id === entityId);
+
+        if (!foundRole) {
+          this.logger.verbose('Role not found.');
+          return false;
+        }
+
+        return await permissionRepo.existsBy({
+          roleId: foundRole.id,
+          entityType, // fixed on 28/11
+          permission,
+        });
+      }
       default:
         break;
     }
@@ -130,10 +144,13 @@ export class AuthImptService {
     roles: UserRoleOptions[],
   ): Promise<boolean> {
     const userRepo = this.dataSource.getRepository(UserEntity);
-    return await userRepo.existsBy({
+    const roleExist = await userRepo.existsBy({
       id: userId,
       roles: { name: In(roles), organizationId },
     });
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', roleExist);
+
+    return roleExist;
   }
 
   async isSuperUser(userId: string): Promise<boolean> {

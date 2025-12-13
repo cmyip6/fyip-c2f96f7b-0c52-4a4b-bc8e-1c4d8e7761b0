@@ -9,10 +9,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RoleEntity } from '@api/models/roles.entity';
 import { GetRoleResponseDto } from '@api/dto/get-role-response.dto';
-import { PermissionLevelOptions } from '../../../../libs/data/type/permission-level.enum';
 import { CreateRoleDto } from '../../dto/create-role.dto';
 import { UpdateRoleDto } from '../../dto/update-role.dto';
-import { EntityTypeOptions } from '../../../../libs/data/type/entity-type.enum';
 import { PermissionEntity } from '../../models/permissions.entity';
 
 @Injectable()
@@ -22,6 +20,8 @@ export class RoleService {
   constructor(
     @InjectRepository(RoleEntity)
     private readonly repoRole: Repository<RoleEntity>,
+    @InjectRepository(PermissionEntity)
+    private readonly repoPermission: Repository<PermissionEntity>,
   ) {}
 
   public async findOneById(
@@ -62,27 +62,25 @@ export class RoleService {
     roleId: number,
     dto: UpdateRoleDto,
   ): Promise<GetRoleResponseDto> {
-    this.logger.verbose('Updating role permissions by ID: ' + roleId);
+    this.logger.verbose(`Updating role permissions by ID: ${roleId}`);
+
     const roleDb = await this.repoRole.findOne({
-      where: {
-        id: roleId,
-        organizationId: dto.organizationId,
-      },
+      where: { id: roleId, organizationId: dto.organizationId },
       relations: ['permissions'],
     });
 
     if (!roleDb) {
-      throw new NotFoundException('Role is not found. ID: ' + roleId);
+      throw new NotFoundException(`Role is not found. ID: ${roleId}`);
     }
 
-    if (dto.name) {
-      const nameIsExist = await this.repoRole.findOneBy({
+    if (dto.name && dto.name !== roleDb.name) {
+      const nameExists = await this.repoRole.findOneBy({
         name: dto.name,
         organizationId: dto.organizationId,
       });
 
-      if (nameIsExist) {
-        throw new BadRequestException('Role name is already exist');
+      if (nameExists) {
+        throw new BadRequestException('Role name already exists');
       }
       roleDb.name = dto.name;
     }
@@ -91,42 +89,39 @@ export class RoleService {
       roleDb.description = dto.description;
     }
 
-    const insertPermissions: Partial<PermissionEntity>[] = [];
-    if (dto.permissions?.insert?.length > 0) {
-      for (const insertDto of dto.permissions.insert) {
-        if (
-          !roleDb.permissions.find(
-            (el) => el.permission === insertDto.permission,
-          )
-        ) {
-          insertPermissions.push({
-            permission: insertDto.permission,
-            entityType: insertDto.entityType,
-            role: roleDb,
-          });
-        }
-      }
-    }
-
-    if (dto.permissions?.delete?.length > 0) {
-      for (const deleteDto of dto.permissions.delete) {
-        if (
-          roleDb.permissions.find(
-            (el) => el.permission === deleteDto.permission,
-          )
-        ) {
-          roleDb.permissions = roleDb.permissions.filter(
-            (el) => el.permission !== deleteDto.permission,
-          );
-        }
-      }
-    }
-
-    await this.repoRole.save(roleDb);
-
-    return plainToInstance(
-      GetRoleResponseDto,
-      await this.repoRole.save(roleDb),
+    const currentPermissionSet = new Set(
+      roleDb.permissions.map((p) => p.permission),
     );
+
+    if (dto.permissions?.insert?.length) {
+      const newPermissions = dto.permissions.insert
+        .filter((p) => !currentPermissionSet.has(p.permission)) // Only add if not exists
+        .map((p) =>
+          this.repoPermission.create({
+            permission: p.permission,
+            entityType: p.entityType,
+            role: roleDb,
+          }),
+        );
+
+      if (newPermissions.length > 0) {
+        await this.repoPermission.save(newPermissions);
+        roleDb.permissions.push(...newPermissions);
+      }
+    }
+
+    if (dto.permissions?.delete?.length) {
+      const deleteSet = new Set(
+        dto.permissions.delete.map((p) => p.permission),
+      );
+
+      roleDb.permissions = roleDb.permissions.filter(
+        (p) => !deleteSet.has(p.permission),
+      );
+    }
+
+    const savedRole = await this.repoRole.save(roleDb);
+    console.log(savedRole);
+    return plainToInstance(GetRoleResponseDto, savedRole);
   }
 }
