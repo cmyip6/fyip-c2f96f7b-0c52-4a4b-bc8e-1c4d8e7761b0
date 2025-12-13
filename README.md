@@ -13,7 +13,7 @@ Thank you so much for taking the time to review my project! Please follow the in
 - **Docker** (with Docker Engine running)
 - **Node.js** (via `nvm`)
 
-## Setting up environment
+## Setting up environment ( Local )
 
 1.  Start the Docker engine.
 
@@ -37,6 +37,31 @@ Thank you so much for taking the time to review my project! Please follow the in
     > npm run api:db:setdown
     > ```
 
+## Setting up environment ( e2e testing )
+
+1.  Start the Docker engine.
+
+2.  Clone this repo to your local machine and `cd` into the root directory.
+
+3.  Create > .env.test in the root directory, copy variables from env.test.example (Make sure RUN_SEEDS = false, DROP_SCHEMA = true, RUN_MIGRATIONS = true and create a string for JWT_SECRETE). 
+
+4.  Run this command to install packages for all applications:
+
+    ```sh
+    npm run install-all
+    ```
+
+5.  Set up the Docker database:
+
+    ```sh
+    npm run api:test:db:setup
+    ```
+
+6.  Run test
+    ```sh
+    npm run api:test:e2e
+    ```
+    
 # Starting API + Client
 
 1.  **Environment Variables**: Before starting, copy all variables from `env.example` to `.env` and make sure all of them are set.
