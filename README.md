@@ -6,6 +6,7 @@ Thank you so much for taking the time to review my project! Please follow the in
 
 1. main ( Submitted version )
 2. feat/jwt-refactor ( Refactored jwt token handling with HttpOnly cookie, improved logic handling and remember me functionality )
+3. feat/e2e-test (Merged feat/jwt-refactor, added e2e testing env setup and some test cases, added some missing services and routes)
 
 # Prerequisites
 
