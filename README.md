@@ -43,7 +43,7 @@ Thank you so much for taking the time to review my project! Please follow the in
 
 2.  Clone this repo to your local machine and `cd` into the root directory.
 
-3.  Create > .env.test in the root directory, copy variables from env.test.example (Make sure RUN_SEEDS = false, DROP_SCHEMA = true, RUN_MIGRATIONS = true and create a string for JWT_SECRETE). 
+3.  Create > .env.test in the root directory, copy variables from env.test.example (Make sure RUN_SEEDS = false, DROP_SCHEMA = true, RUN_MIGRATIONS = true and create a string for JWT_SECRET). 
 
 4.  Run this command to install packages for all applications:
 
