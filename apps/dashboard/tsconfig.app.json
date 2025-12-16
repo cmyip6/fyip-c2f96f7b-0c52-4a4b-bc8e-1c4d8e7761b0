@@ -5,7 +5,7 @@
     "types": []
   },
   "files": ["main.ts", "app.config.ts"],
-  "include": ["./**/*.ts"],
+  "include": ["./**/*.ts", "tailwind.config.js"],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,

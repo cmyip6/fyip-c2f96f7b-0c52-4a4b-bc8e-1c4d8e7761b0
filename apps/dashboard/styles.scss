@@ -1,0 +1,99 @@
+@use 'tailwindcss';
+
+html,
+body {
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+}
+
+.login-page {
+  @apply min-h-screen flex items-center justify-center bg-[#1a1d21] p-4 font-sans relative overflow-hidden;
+}
+
+.login-card {
+  @apply w-full max-w-md bg-[#2A2F35] relative z-10 shadow-[0_20px_50px_rgba(0,0,0,0.9)] 
+         rounded-sm ring-1 ring-white/10 p-8 sm:p-12 overflow-hidden border-t-4 border-amber-700/50;
+}
+
+.decorative-rivet {
+  @apply absolute w-1.5 h-1.5 rounded-full bg-zinc-700 shadow-[inset_0_1px_1px_rgba(0,0,0,1)];
+}
+
+/* Headings */
+.login-header {
+  @apply text-center mb-10;
+}
+
+.login-icon-wrapper {
+  @apply inline-flex items-center justify-center mb-4 p-3 bg-black/20 rounded-sm ring-1 ring-white/5;
+}
+
+.login-title {
+  @apply text-2xl font-bold text-amber-50/90 tracking-widest uppercase font-mono;
+}
+
+.login-subtitle {
+  @apply text-gray-500 mt-2 text-[10px] uppercase tracking-[0.2em] font-bold;
+}
+
+/* Form Elements */
+.form-group {
+  @apply space-y-2;
+}
+
+.form-label {
+  @apply block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1 transition-colors;
+}
+
+.form-label-focus {
+  @apply group-focus-within:text-amber-600;
+}
+
+.form-input {
+  @apply w-full px-4 py-3 bg-black/20 border border-white/5 rounded-sm text-gray-300 placeholder-gray-600 
+         focus:outline-none focus:border-amber-600/50 focus:bg-black/30 transition-all duration-200 font-mono text-sm;
+}
+
+.form-input-decor {
+  @apply absolute w-2 h-2 border border-transparent transition-colors;
+}
+
+.form-input-decor-top-left {
+  @apply top-0 left-0 border-t border-l;
+}
+
+.form-input-decor-bottom-right {
+  @apply bottom-0 right-0 border-b border-r;
+}
+
+/* Checkbox */
+.checkbox-input {
+  @apply h-4 w-4 rounded-sm border-gray-600 bg-black/20 text-amber-600 focus:ring-amber-600/30 cursor-pointer;
+}
+
+.checkbox-label {
+  @apply ml-2 block text-[10px] font-bold text-gray-500 uppercase tracking-wide cursor-pointer select-none hover:text-gray-400;
+}
+
+/* Links */
+.link-reset {
+  @apply text-[10px] font-bold text-amber-700/80 hover:text-amber-600 uppercase tracking-wide transition-colors;
+}
+
+/* Buttons */
+.btn-primary {
+  @apply relative w-full flex justify-center items-center py-4 px-4 mt-4 
+         bg-amber-900/20 hover:bg-amber-800/30 border border-amber-700/30 text-amber-500 
+         font-bold uppercase tracking-[0.25em] text-xs transition-all duration-300 
+         disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden rounded-sm;
+}
+
+.btn-primary-gradient {
+  @apply absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/5 to-transparent transition-transform duration-700 ease-in-out;
+}
+
+/* Footer */
+.login-footer {
+  @apply absolute bottom-4 text-[10px] text-gray-700 font-mono tracking-widest uppercase;
+}
