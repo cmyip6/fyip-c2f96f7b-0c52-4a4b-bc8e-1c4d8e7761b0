@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { CreateRoleDto } from '../../dto/create-role.dto';
 import { faker } from '@faker-js/faker';
 import { UserRoleOptions } from '@libs/data/type/user-role.enum';
-import { PropertyLength } from '@libs/data/const/length.const';
 import { UpdateRoleDto } from '@api/dto/update-role.dto';
 import { PermissionLevelOptions } from '@libs/data/type/permission-level.enum';
 import { EntityTypeOptions } from '@libs/data/type/entity-type.enum';

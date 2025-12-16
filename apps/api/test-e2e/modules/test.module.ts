@@ -13,6 +13,7 @@ import { RoleEntity } from '../../models/roles.entity';
 import { PermissionEntity } from '../../models/permissions.entity';
 import { OrganizationRelationEntity } from '../../models/organization-relation.entity';
 import { FactoriesModule } from './factories.module';
+import { AuditLogEntity } from '../../models/audit-log.entity';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -26,6 +27,7 @@ import { FactoriesModule } from './factories.module';
             RoleEntity,
             PermissionEntity,
             OrganizationRelationEntity,
+            AuditLogEntity,
           ],
         });
         return config;

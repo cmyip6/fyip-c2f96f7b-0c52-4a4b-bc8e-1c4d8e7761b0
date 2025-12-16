@@ -148,7 +148,6 @@ export class AuthImptService {
       id: userId,
       roles: { name: In(roles), organizationId },
     });
-    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', roleExist);
 
     return roleExist;
   }

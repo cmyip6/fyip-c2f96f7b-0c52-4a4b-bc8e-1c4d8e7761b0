@@ -12,7 +12,7 @@ import { UserEntity } from '../../models/users.entity';
 import { RoleEntity } from '../../models/roles.entity';
 import { PermissionEntity } from '../../models/permissions.entity';
 import { OrganizationRelationEntity } from '../../models/organization-relation.entity';
-
+import { AuditLogEntity } from '../../models/audit-log.entity';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -26,6 +26,7 @@ import { OrganizationRelationEntity } from '../../models/organization-relation.e
             RoleEntity,
             PermissionEntity,
             OrganizationRelationEntity,
+            AuditLogEntity,
           ],
         });
       },

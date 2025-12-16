@@ -24,6 +24,8 @@ import {
   CreateOrganizationResponseDto,
 } from '../../dto/create-organization.dto';
 import { PoliciesExecutor } from '../../policies/task.policy';
+import { EntityTypeOptions } from '../../../../libs/data/type/entity-type.enum';
+import { Audit } from '../../decorator/audit-log.decorator';
 
 @UseGuards(RolesGuard, JwtAuthGuard)
 @ApiBearerAuth()
@@ -52,6 +54,10 @@ export class OrganizationController {
   }
 
   @Post()
+  @Audit({
+    action: 'Create Organization',
+    entityType: EntityTypeOptions.ORGANIZATION,
+  })
   @CheckPolicies(
     new PoliciesExecutor().SuperUser(),
     new PoliciesExecutor().Create('body.parentOrganizationId', {

@@ -31,6 +31,8 @@ import { PoliciesExecutor } from '@api/policies/task.policy';
 import { CreateTaskResponseDto } from '@api/dto/create-task-response.dto';
 import { DeleteResult } from 'typeorm';
 import { UpdateTaskDto } from '@api/dto/update-task.dto';
+import { Audit } from '../../decorator/audit-log.decorator';
+import { Transactional } from 'typeorm-transactional';
 
 @Controller('task')
 @UseGuards(RolesGuard, PoliciesGuard, JwtAuthGuard)
@@ -79,6 +81,10 @@ export class TaskController {
   }
 
   @Post()
+  @Audit({
+    action: 'Create Task',
+    entityType: EntityTypeOptions.TASK,
+  })
   @ValidateResponse(CreateTaskResponseDto)
   @CheckPolicies(
     new PoliciesExecutor(EntityTypeOptions.ORGANIZATION).Update(
@@ -89,6 +95,7 @@ export class TaskController {
     ),
   )
   @Admin('body.organizationId')
+  @Transactional()
   createOne(
     @Body() dto: CreateTaskDto,
     @User() user: AuthUserInterface,
@@ -97,6 +104,11 @@ export class TaskController {
   }
 
   @Patch(':taskId')
+  @Audit({
+    action: 'Update Task',
+    entityType: EntityTypeOptions.TASK,
+    entityIdPath: 'params.taskId',
+  })
   @CheckPolicies(
     new PoliciesExecutor(EntityTypeOptions.TASK).Update('params.taskId'),
   )
@@ -110,10 +122,16 @@ export class TaskController {
   }
 
   @Delete(':taskId')
+  @Audit({
+    action: 'Delete Task',
+    entityType: EntityTypeOptions.TASK,
+    entityIdPath: 'params.taskId',
+  })
   @CheckPolicies(
     new PoliciesExecutor(EntityTypeOptions.TASK).Delete('params.taskId'),
   )
   @Admin('params.taskId', EntityTypeOptions.TASK)
+  @Transactional()
   deleteOne(
     @Param('taskId', ParseIntPipe) taskId: number,
     @User() user: AuthUserInterface,

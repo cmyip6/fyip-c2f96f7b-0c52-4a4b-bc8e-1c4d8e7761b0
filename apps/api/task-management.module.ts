@@ -7,6 +7,10 @@ import { OrganizationModule } from './modules/organization/orgnaization.module';
 import { RoleModule } from './modules/role/role.module';
 import { AuthImptModule } from './modules/auth-impt/auth-impt.module';
 import { AuthMiddleware } from './middleware/auth.middleware';
+import { AuditLogModule } from './modules/audit-log/audit-log.module';
+import { AuditInterceptor } from './modules/audit-log/audit-log.interceptor';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+
 @Module({
   imports: [
     AuthModule,
@@ -15,7 +19,9 @@ import { AuthMiddleware } from './middleware/auth.middleware';
     UserModule,
     TaskModule,
     AuthImptModule,
+    AuditLogModule,
   ],
+  providers: [{ provide: APP_INTERCEPTOR, useClass: AuditInterceptor }],
 })
 export class TaskManagementModule {
   configure(consumer: MiddlewareConsumer) {

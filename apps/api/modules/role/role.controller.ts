@@ -14,6 +14,8 @@ import { GetRoleResponseDto } from '@api/dto/get-role-response.dto';
 import { Admin, Owner } from '@api/decorator/roles.decorator';
 import { CreateRoleDto } from '../../dto/create-role.dto';
 import { UpdateRoleDto } from '../../dto/update-role.dto';
+import { EntityTypeOptions } from '../../../../libs/data/type/entity-type.enum';
+import { Audit } from '../../decorator/audit-log.decorator';
 
 @UseGuards(RolesGuard)
 @Controller('role')
@@ -31,12 +33,21 @@ export class RoleController {
 
   @Post()
   @Owner('body.organizationId')
+  @Audit({
+    action: 'Create Role',
+    entityType: EntityTypeOptions.ROLE,
+  })
   async createRole(@Body() body: CreateRoleDto): Promise<GetRoleResponseDto> {
     return await this.roleService.createRole(body);
   }
 
   @Patch(':roleId/permission')
   @Owner('body.organizationId')
+  @Audit({
+    action: 'Update Role Permissions',
+    entityType: EntityTypeOptions.ROLE,
+    entityIdPath: 'params.roleId',
+  })
   async updateRolePermissions(
     @Param('roleId', ParseIntPipe) roleId: number,
     @Body() dto: UpdateRoleDto,

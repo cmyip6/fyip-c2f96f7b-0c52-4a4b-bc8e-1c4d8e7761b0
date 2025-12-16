@@ -25,9 +25,9 @@ import {
   CreateUserResponseDto,
 } from '../../dto/create-user.dto';
 import { PoliciesExecutor } from '../../policies/task.policy';
-import { OrganizationController } from '../organization/organization.controller';
 import { EntityTypeOptions } from '../../../../libs/data/type/entity-type.enum';
 import { Owner } from '../../decorator/roles.decorator';
+import { Audit } from '../../decorator/audit-log.decorator';
 
 @Controller('user')
 @UseGuards(RolesGuard, JwtAuthGuard, PoliciesGuard)
@@ -55,6 +55,10 @@ export class UserController {
   }
 
   @Post()
+  @Audit({
+    action: 'Create User',
+    entityType: EntityTypeOptions.USER,
+  })
   @CheckPolicies(
     new PoliciesExecutor(EntityTypeOptions.ROLE).Update('body.roleId'),
   )
