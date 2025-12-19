@@ -1,25 +1,44 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AvatarProfileComponent } from './avatar-profile.component';
 import { SessionService } from '../../services/session.service';
+import { AvatarProfileComponent } from './avatar-profile.component';
+import { AuditLogsDrawerComponent } from './audit-logs-drawer.component';
 
 @Component({
   selector: 'app-top-bar',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, AvatarProfileComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    AvatarProfileComponent,
+    AuditLogsDrawerComponent,
+  ],
   template: `
     <header
       class="bg-[#2A2F35] border-b-4 border-amber-900/50 shadow-lg relative z-30 font-mono"
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16 items-center">
-          <div class="flex items-center gap-8">
+          <!-- Left: Logo, Audit Trigger & Org Selector -->
+          <div class="flex items-center gap-6">
             <!-- Logo -->
             <div class="flex items-center gap-2">
-              <div
-                class="p-1.5 bg-amber-900/20 border border-amber-700/50 rounded-sm"
+              <span
+                class="text-amber-500 font-bold tracking-widest uppercase text-lg hidden md:block"
+                >Task<span class="text-gray-500">Management</span></span
+              >
+            </div>
+
+            <!-- Audit Log Trigger & Drawer Container -->
+            <div class="relative">
+              <button
+                (click)="toggleAuditLogs()"
+                class="flex items-center gap-2 px-3 py-2 bg-black/30 border border-white/10 hover:border-amber-600/50 text-gray-400 hover:text-amber-500 rounded-sm transition-all"
+                [class.text-amber-500]="showAuditLogs()"
+                [class.border-amber-600]="showAuditLogs()"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -27,23 +46,29 @@ import { SessionService } from '../../services/session.service';
                   viewBox="0 0 24 24"
                   stroke-width="1.5"
                   stroke="currentColor"
-                  class="w-6 h-6 text-amber-500"
+                  class="w-4 h-4"
                 >
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                    d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                   />
                 </svg>
-              </div>
-              <span
-                class="text-amber-500 font-bold tracking-widest uppercase text-lg hidden md:block"
-                >Task<span class="text-gray-500">Management</span></span
-              >
+                <span
+                  class="hidden lg:inline text-[10px] font-bold uppercase tracking-widest"
+                  >Logs</span
+                >
+              </button>
+
+              <!-- The Drawer Component -->
+              <app-audit-logs-drawer
+                [isVisible]="showAuditLogs()"
+                (close)="showAuditLogs.set(false)"
+              ></app-audit-logs-drawer>
             </div>
 
-            <!-- Organization Switcher (Dropdown) -->
-            <div class="relative group">
+            <!-- Organization Switcher -->
+            <div class="relative group hidden sm:block">
               <div
                 class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
               >
@@ -66,7 +91,7 @@ import { SessionService } from '../../services/session.service';
               <select
                 [ngModel]="session.selectedOrgId()"
                 (ngModelChange)="onOrgChange($event)"
-                class="appearance-none bg-black/30 border border-amber-900/30 hover:border-amber-600 text-amber-500 text-xs font-bold uppercase tracking-wider rounded-sm py-2 pl-9 pr-8 focus:outline-none focus:ring-1 focus:ring-amber-500 cursor-pointer transition-colors w-48 sm:w-64"
+                class="appearance-none bg-black/30 border border-amber-900/30 hover:border-amber-600 text-amber-500 text-xs font-bold uppercase tracking-wider rounded-sm py-2 pl-9 pr-8 focus:outline-none focus:ring-1 focus:ring-amber-500 cursor-pointer transition-colors w-40 lg:w-56"
               >
                 <option
                   *ngFor="let org of session.organizations()"
@@ -76,7 +101,6 @@ import { SessionService } from '../../services/session.service';
                 </option>
               </select>
 
-              <!-- Custom Arrow -->
               <div
                 class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none"
               >
@@ -121,6 +145,11 @@ import { SessionService } from '../../services/session.service';
 })
 export class TopBarComponent {
   session = inject(SessionService);
+  showAuditLogs = signal(false);
+
+  toggleAuditLogs() {
+    this.showAuditLogs.update((el) => !el);
+  }
 
   onOrgChange(orgId: number) {
     this.session.selectOrganization(orgId);
