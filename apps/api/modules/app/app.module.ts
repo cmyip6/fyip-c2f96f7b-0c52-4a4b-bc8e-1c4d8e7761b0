@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { dataSourceConfig } from '../../database/dbconfig';
 import * as migrations from '../../database/migrations';
+import * as subscribers from '../../models/subscribers';
 import { TaskManagementModule } from '../../task-management.module';
 
 import { OrganizationEntity } from '../../models/organizations.entity';
@@ -13,12 +14,20 @@ import { RoleEntity } from '../../models/roles.entity';
 import { PermissionEntity } from '../../models/permissions.entity';
 import { OrganizationRelationEntity } from '../../models/organization-relation.entity';
 import { AuditLogEntity } from '../../models/audit-log.entity';
+import { ClsModule } from 'nestjs-cls';
 @Module({
   imports: [
+    ClsModule.forRoot({
+      global: true,
+      middleware: {
+        mount: true,
+      },
+    }),
     TypeOrmModule.forRootAsync({
       useFactory: async () => {
         return dataSourceConfig({
           migrations: Object.values(migrations),
+          subscribers: [],
           entities: [
             OrganizationEntity,
             TaskEntity,
@@ -38,5 +47,6 @@ import { AuditLogEntity } from '../../models/audit-log.entity';
     }),
     TaskManagementModule,
   ],
+  providers: [...Object.values(subscribers)],
 })
 export class AppModule {}

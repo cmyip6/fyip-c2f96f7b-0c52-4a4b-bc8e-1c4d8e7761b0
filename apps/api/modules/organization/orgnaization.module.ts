@@ -5,6 +5,7 @@ import { OrganizationController } from './organization.controller';
 import { OrganizationEntity } from '@api/models/organizations.entity';
 import { UserEntity } from '@api/models/users.entity';
 import { OrganizationRelationEntity } from '@api/models/organization-relation.entity';
+import { BaseEntitySubscriber } from '../../models/subscribers';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -13,7 +14,7 @@ import { OrganizationRelationEntity } from '@api/models/organization-relation.en
       UserEntity,
     ]),
   ],
-  providers: [OrganizationService],
+  providers: [OrganizationService, BaseEntitySubscriber],
   controllers: [OrganizationController],
   exports: [OrganizationService],
 })

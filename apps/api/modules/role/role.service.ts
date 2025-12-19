@@ -121,7 +121,10 @@ export class RoleService {
     }
 
     const savedRole = await this.repoRole.save(roleDb);
-    console.log(savedRole);
     return plainToInstance(GetRoleResponseDto, savedRole);
+  }
+
+  checkRoleById(roleId: number): Promise<boolean> {
+    return this.repoRole.existsBy({ id: roleId });
   }
 }

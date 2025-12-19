@@ -14,6 +14,7 @@ import {
 import { CONNECTION_NAME } from './database/dbconfig';
 import { TypeORMMigrations } from './helper/typeorm-migration';
 import { AppModule } from './modules/app/app.module';
+import { useContainer } from 'class-validator';
 
 const DROP_SCHEMA = process.env['DROP_SCHEMA'] === 'true';
 const RUN_MIGRATIONS = process.env['RUN_MIGRATIONS'] === 'true';
@@ -41,6 +42,9 @@ async function bootstrap(): Promise<void> {
     RUN_SEEDS,
     Object.values(seeders),
   );
+  useContainer(app.select(AppModule), {
+    fallbackOnErrors: true,
+  });
   app.use(cookieParser());
   app.enableCors({
     origin: ['http://localhost:4200' /* for development */, url],

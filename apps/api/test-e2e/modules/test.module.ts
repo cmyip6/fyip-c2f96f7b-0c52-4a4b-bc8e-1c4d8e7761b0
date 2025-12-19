@@ -14,12 +14,21 @@ import { PermissionEntity } from '../../models/permissions.entity';
 import { OrganizationRelationEntity } from '../../models/organization-relation.entity';
 import { FactoriesModule } from './factories.module';
 import { AuditLogEntity } from '../../models/audit-log.entity';
+import * as subscribers from '../../models/subscribers';
+import { ClsModule } from 'nestjs-cls';
 @Module({
   imports: [
+    ClsModule.forRoot({
+      global: true,
+      middleware: {
+        mount: true,
+      },
+    }),
     TypeOrmModule.forRootAsync({
       useFactory: async () => {
         const config = testDataSourceConfig({
           migrations: Object.values(migrations),
+          subscribers: [],
           entities: [
             OrganizationEntity,
             TaskEntity,
@@ -41,5 +50,6 @@ import { AuditLogEntity } from '../../models/audit-log.entity';
     TaskManagementModule,
     FactoriesModule,
   ],
+  providers: [...Object.values(subscribers)],
 })
 export class TestModule {}

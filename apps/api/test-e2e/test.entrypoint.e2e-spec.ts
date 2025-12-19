@@ -27,6 +27,7 @@ import { BaseTest } from './test/base-test';
 import { TestModule } from './modules/test.module';
 import cookieParser from 'cookie-parser';
 import moment from 'moment';
+import { useContainer } from 'class-validator';
 
 const TESTTORUN = process.env['TESTTORUN'];
 const SUITETORUN = process.env['SUITETORUN'];
@@ -60,6 +61,10 @@ const initTestingNest = async (): Promise<INestApplication> => {
   });
 
   const url = `${protocol}://${host}:${port}`;
+  useContainer(app.select(TestModule), {
+    fallbackOnErrors: true,
+  });
+
   app.use(cookieParser());
   app.enableCors({
     credentials: true,

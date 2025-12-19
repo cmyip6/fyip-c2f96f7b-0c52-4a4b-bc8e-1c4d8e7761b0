@@ -10,9 +10,17 @@ import { AuthMiddleware } from './middleware/auth.middleware';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { AuditInterceptor } from './modules/audit-log/audit-log.interceptor';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import * as Validators from './validator';
+import { ClsModule } from 'nestjs-cls';
 
 @Module({
   imports: [
+    ClsModule.forRoot({
+      global: true,
+      middleware: {
+        mount: true,
+      },
+    }),
     AuthModule,
     OrganizationModule,
     RoleModule,
@@ -21,7 +29,10 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
     AuthImptModule,
     AuditLogModule,
   ],
-  providers: [{ provide: APP_INTERCEPTOR, useClass: AuditInterceptor }],
+  providers: [
+    { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
+    ...Object.values(Validators),
+  ],
 })
 export class TaskManagementModule {
   configure(consumer: MiddlewareConsumer) {

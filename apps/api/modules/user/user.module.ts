@@ -11,6 +11,7 @@ import { RoleEntity } from '@api/models/roles.entity';
 import { UserEntity } from '@api/models/users.entity';
 import { OrganizationRelationEntity } from '@api/models/organization-relation.entity';
 import { PermissionEntity } from '@api/models/permissions.entity';
+import { BaseEntitySubscriber } from '../../models/subscribers';
 
 @Module({
   imports: [
@@ -24,7 +25,12 @@ import { PermissionEntity } from '@api/models/permissions.entity';
     OrganizationModule,
     RoleModule,
   ],
-  providers: [UserService, RoleService, OrganizationService],
+  providers: [
+    UserService,
+    RoleService,
+    OrganizationService,
+    BaseEntitySubscriber,
+  ],
   controllers: [UserController],
   exports: [UserService],
 })

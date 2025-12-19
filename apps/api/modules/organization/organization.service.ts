@@ -148,11 +148,10 @@ export class OrganizationService {
       id: organizationId,
     });
 
-    if (!organization) {
-      throw new NotFoundException(
-        'Organization is not found. ID: ' + organizationId,
-      );
-    }
     return plainToInstance(GetOrganizationResponseDto, organization);
+  }
+
+  async existsById(organizationId): Promise<boolean> {
+    return this.repoOrganization.existsBy({ id: organizationId });
   }
 }

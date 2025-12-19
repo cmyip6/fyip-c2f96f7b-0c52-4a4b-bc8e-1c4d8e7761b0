@@ -11,6 +11,8 @@ import {
 } from 'class-validator';
 import { PropertyLength } from '@libs/data/const/length.const';
 import { PASSWORD_REGEX } from '../helper/password.regex';
+import { IsValidRole } from '../validator/role-exist.validator';
+import { IsUserFieldUnique } from '../validator/user-field-unique.validator';
 
 export class CreateUserDto {
   @ApiProperty({ description: 'User Password', type: String })
@@ -28,11 +30,17 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
   @Type(() => String)
+  @IsUserFieldUnique({
+    message: 'Username has been taken, please select another one',
+  })
   username: string;
 
   @ApiProperty({ description: 'User email', type: String })
   @IsNotEmpty()
   @IsEmail()
+  @IsUserFieldUnique({
+    message: 'Email has been registered trying logging in.',
+  })
   email: string;
 
   @ApiProperty({
@@ -45,6 +53,7 @@ export class CreateUserDto {
   name: string;
 
   @IsNumber()
+  @IsValidRole({ message: 'Role does not exist in the database' })
   roleId: number;
 }
 

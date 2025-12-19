@@ -2,6 +2,7 @@ import { AuthUserInterface } from '@libs/data/type/auth-user.interface';
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
+import { ClsService } from 'nestjs-cls';
 
 declare module 'express' {
   interface Request {
@@ -12,6 +13,7 @@ declare module 'express' {
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
+  constructor(private readonly cls: ClsService) {}
   logger = new Logger(AuthMiddleware.name);
 
   use(req: Request, _res: Response, next: NextFunction) {
@@ -46,6 +48,7 @@ export class AuthMiddleware implements NestMiddleware {
         );
         req.user = decoded.user;
         req.token = token;
+        this.cls.set('userId', decoded.user.id);
       }
     } catch (err) {
       this.logger.warn(`Invalid or expired token detected for ${req.path}`);

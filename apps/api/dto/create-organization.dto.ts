@@ -6,6 +6,7 @@ import {
   IsNumber,
 } from 'class-validator';
 import { PropertyLength } from '../../../libs/data/const/length.const';
+import { IsValidOrganization } from '../validator/organization-exist.validator';
 
 export class CreateOrganizationDto {
   @IsString()
@@ -20,10 +21,12 @@ export class CreateOrganizationDto {
 
   @IsNumber()
   @IsOptional()
+  @IsValidOrganization()
   parentOrganizationId?: number;
 
   @IsNumber()
   @IsOptional()
+  @IsValidOrganization()
   childOrganizationId?: number;
 }
 

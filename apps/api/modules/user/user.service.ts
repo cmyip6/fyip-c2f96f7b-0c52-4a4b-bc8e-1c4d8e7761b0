@@ -42,7 +42,7 @@ export class UserService {
   @Transactional()
   async createUser(
     dto: CreateUserDto,
-    userId: string,
+    creatorId: string,
   ): Promise<CreateUserResponseDto> {
     this.logger.debug(`Creating user ${dto.name}`);
     let organizationId = null;
@@ -65,8 +65,8 @@ export class UserService {
       name: dto.name,
       organization: { id: organizationId },
       roles,
-      createdBy: userId,
-      updatedBy: userId,
+      createdBy: creatorId,
+      updatedBy: creatorId,
     });
 
     return plainToInstance(CreateUserResponseDto, ret);
@@ -98,5 +98,9 @@ export class UserService {
     // delete relational entities
 
     return await this.repoUser.delete(userId);
+  }
+
+  existsByField(field: string, value: string): Promise<boolean> {
+    return this.repoUser.existsBy({ [field]: value });
   }
 }
