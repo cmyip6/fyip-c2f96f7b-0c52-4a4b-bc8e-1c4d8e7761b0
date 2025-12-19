@@ -6,12 +6,10 @@ export const CONNECTION_NAME = 'default';
 export const dataSourceConfig = ({
   migrations,
   entities,
-  subscribers,
   migrationsTableName = CUSTOM_MIGRATION_TABLE,
 }: {
   migrations: MixedList<Function | string>;
   entities: MixedList<Function | string | EntitySchema>;
-  subscribers?: MixedList<Function | string>;
   migrationsTableName?: string;
 }): DataSourceOptions => {
   return {
@@ -24,9 +22,6 @@ export const dataSourceConfig = ({
     migrationsTableName,
     entities: entities ?? ['apps/api/models/*.entity.ts'],
     migrations: migrations ?? ['apps/database/migrations/*.ts'],
-    subscribers: subscribers ?? [
-      'apps/database/models/subscribers/*.subscriber.ts',
-    ],
     name: CONNECTION_NAME,
     logging: process.env.NODE_ENV === 'development',
     maxQueryExecutionTime: 6000,
@@ -42,12 +37,10 @@ export const dataSourceConfig = ({
 export const testDataSourceConfig = ({
   migrations,
   entities,
-  subscribers,
   migrationsTableName = CUSTOM_MIGRATION_TABLE,
 }: {
   migrations?: MixedList<Function | string>;
   entities?: MixedList<Function | string | EntitySchema>;
-  subscribers?: MixedList<Function | string>;
   migrationsTableName?: string;
 }): DataSourceOptions => {
   return {
@@ -60,9 +53,6 @@ export const testDataSourceConfig = ({
     migrationsTableName,
     entities: entities ?? ['apps/api/models/*.entity.ts'],
     migrations: migrations ?? ['apps/database/migrations/*.ts'],
-    subscribers: subscribers ?? [
-      'apps/database/models/subscribers/*.subscriber.ts',
-    ],
     name: CONNECTION_NAME,
     logging: process.env.NODE_ENV === 'test',
     maxQueryExecutionTime: 6000,

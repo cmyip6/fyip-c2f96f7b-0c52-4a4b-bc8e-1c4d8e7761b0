@@ -17,17 +17,10 @@ import { AuditLogEntity } from '../../models/audit-log.entity';
 import { ClsModule } from 'nestjs-cls';
 @Module({
   imports: [
-    ClsModule.forRoot({
-      global: true,
-      middleware: {
-        mount: true,
-      },
-    }),
     TypeOrmModule.forRootAsync({
       useFactory: async () => {
         return dataSourceConfig({
           migrations: Object.values(migrations),
-          subscribers: [],
           entities: [
             OrganizationEntity,
             TaskEntity,
@@ -47,6 +40,5 @@ import { ClsModule } from 'nestjs-cls';
     }),
     TaskManagementModule,
   ],
-  providers: [...Object.values(subscribers)],
 })
 export class AppModule {}

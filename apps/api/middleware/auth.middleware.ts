@@ -1,5 +1,5 @@
 import { AuthUserInterface } from '@libs/data/type/auth-user.interface';
-import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
+import { Inject, Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { ClsService } from 'nestjs-cls';
@@ -13,7 +13,8 @@ declare module 'express' {
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  constructor(private readonly cls: ClsService) {}
+  @Inject(ClsService) private readonly cls: ClsService;
+
   logger = new Logger(AuthMiddleware.name);
 
   use(req: Request, _res: Response, next: NextFunction) {
@@ -44,7 +45,7 @@ export class AuthMiddleware implements NestMiddleware {
       const decoded: { user: AuthUserInterface } = jwt.verify(token, secret);
       if (decoded.user && this.validateUserStructure(decoded.user)) {
         this.logger.verbose(
-          `User ${decoded.user.username} verified via middleware.`,
+          `User ${decoded.user.email} verified via middleware.`,
         );
         req.user = decoded.user;
         req.token = token;

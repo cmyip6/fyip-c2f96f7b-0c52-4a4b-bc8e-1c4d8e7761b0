@@ -18,17 +18,10 @@ import * as subscribers from '../../models/subscribers';
 import { ClsModule } from 'nestjs-cls';
 @Module({
   imports: [
-    ClsModule.forRoot({
-      global: true,
-      middleware: {
-        mount: true,
-      },
-    }),
     TypeOrmModule.forRootAsync({
       useFactory: async () => {
         const config = testDataSourceConfig({
           migrations: Object.values(migrations),
-          subscribers: [],
           entities: [
             OrganizationEntity,
             TaskEntity,
@@ -50,6 +43,5 @@ import { ClsModule } from 'nestjs-cls';
     TaskManagementModule,
     FactoriesModule,
   ],
-  providers: [...Object.values(subscribers)],
 })
 export class TestModule {}

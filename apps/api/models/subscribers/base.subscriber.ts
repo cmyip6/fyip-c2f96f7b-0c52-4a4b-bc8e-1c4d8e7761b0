@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import {
   DataSource,
   EntitySubscriberInterface,
@@ -9,15 +9,18 @@ import {
 } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { ClsService } from 'nestjs-cls';
+import { InjectDataSource } from '@nestjs/typeorm';
 
 @EventSubscriber()
 @Injectable()
-export class BaseEntitySubscriber implements EntitySubscriberInterface {
-  constructor(
-    private readonly cls: ClsService,
-    dataSource: DataSource,
-  ) {
-    dataSource.subscribers.push(this);
+export class BaseEntitySubscriber
+  implements EntitySubscriberInterface, OnModuleInit
+{
+  @Inject(ClsService) protected readonly cls: ClsService;
+  @InjectDataSource() protected readonly dataSource: DataSource;
+
+  onModuleInit() {
+    this.dataSource.subscribers.push(this);
   }
 
   private readonly logger = new Logger(BaseEntitySubscriber.name);

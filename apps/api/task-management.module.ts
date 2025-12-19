@@ -11,6 +11,7 @@ import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { AuditInterceptor } from './modules/audit-log/audit-log.interceptor';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import * as Validators from './validator';
+import * as subscribers from './models/subscribers';
 import { ClsModule } from 'nestjs-cls';
 
 @Module({
@@ -32,6 +33,7 @@ import { ClsModule } from 'nestjs-cls';
   providers: [
     { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
     ...Object.values(Validators),
+    ...Object.values(subscribers),
   ],
 })
 export class TaskManagementModule {
