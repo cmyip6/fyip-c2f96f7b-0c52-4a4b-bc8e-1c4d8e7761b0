@@ -8,14 +8,15 @@ import { ToastComponent } from './toast.component';
   standalone: true,
   imports: [CommonModule, ToastComponent],
   template: `
-    <app-toast
-      *ngIf="errorService.error() as error"
-      type="error"
-      [title]="'Error ' + error.statusCode"
-      [message]="formatMessage(error.message)"
-      (close)="errorService.clear()"
-    >
-    </app-toast>
+    @if (errorService.error(); as error) {
+      <app-toast
+        type="error"
+        [title]="'Error ' + error.statusCode"
+        [message]="formatMessage(error.message)"
+        (close)="errorService.clear()"
+      >
+      </app-toast>
+    }
   `,
 })
 export class GlobalErrorComponent {

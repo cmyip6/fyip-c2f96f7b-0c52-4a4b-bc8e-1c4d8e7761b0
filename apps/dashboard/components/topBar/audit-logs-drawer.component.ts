@@ -21,7 +21,7 @@ import {
   template: `
     <!-- Backdrop (Visible on all screens now to allow closing by clicking outside) -->
     <div
-      *ngIf="isVisible"
+      @if(isVisible)
       class="fixed inset-0 bg-transparent z-30"
       (click)="close.emit()"
     ></div>
@@ -123,65 +123,66 @@ import {
             </tr>
           </thead>
           <tbody class="divide-y divide-white/5">
-            <tr
-              *ngFor="let log of logs()"
-              class="hover:bg-white/5 transition-colors group"
-            >
-              <!-- Time -->
-              <td class="px-6 py-4">
-                <div class="text-xs text-gray-300 font-mono">
-                  {{ log.createdAt | date: 'HH:mm:ss' }}
-                </div>
-                <div class="text-[10px] text-gray-600">
-                  {{ log.createdAt | date: 'MMM d' }}
-                </div>
-              </td>
+            @for (log of logs(); track log.id) {
+              <tr class="hover:bg-white/5 transition-colors group">
+                <!-- Time -->
+                <td class="px-6 py-4">
+                  <div class="text-xs text-gray-300 font-mono">
+                    {{ log.createdAt | date: 'HH:mm:ss' }}
+                  </div>
+                  <div class="text-[10px] text-gray-600">
+                    {{ log.createdAt | date: 'MMM d' }}
+                  </div>
+                </td>
 
-              <!-- Action -->
-              <td class="px-6 py-4">
-                <div class="flex flex-col gap-1">
-                  <span
-                    class="inline-block px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-sm border w-fit"
-                    [ngClass]="getActionClass(log.action)"
+                <!-- Action -->
+                <td class="px-6 py-4">
+                  <div class="flex flex-col gap-1">
+                    <span
+                      class="inline-block px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-sm border w-fit"
+                      [ngClass]="getActionClass(log.action)"
+                    >
+                      {{ log.action }}
+                    </span>
+                    <span
+                      class="text-[10px] text-gray-500 truncate max-w-[120px] sm:hidden"
+                    >
+                      {{ log.entityType }}: {{ log.entityId }}
+                    </span>
+                  </div>
+                </td>
+
+                <!-- Entity (Desktop) -->
+                <td class="px-6 py-4 hidden sm:table-cell">
+                  <div class="text-xs text-gray-400">
+                    <span class="text-amber-600/80">{{ log.entityType }}</span>
+                    <span class="text-gray-600 mx-1">#</span>
+                    <span>{{ log.entityId }}</span>
+                  </div>
+                </td>
+
+                <!-- User (Desktop) -->
+                <td class="px-6 py-4 hidden md:table-cell">
+                  <div
+                    class="text-xs text-gray-400 font-mono truncate max-w-[100px]"
+                    title="{{ log.metadata?.status || 'unknown' }}"
                   >
-                    {{ log.action }}
-                  </span>
-                  <span
-                    class="text-[10px] text-gray-500 truncate max-w-[120px] sm:hidden"
-                  >
-                    {{ log.entityType }}: {{ log.entityId }}
-                  </span>
-                </div>
-              </td>
-
-              <!-- Entity (Desktop) -->
-              <td class="px-6 py-4 hidden sm:table-cell">
-                <div class="text-xs text-gray-400">
-                  <span class="text-amber-600/80">{{ log.entityType }}</span>
-                  <span class="text-gray-600 mx-1">#</span>
-                  <span>{{ log.entityId }}</span>
-                </div>
-              </td>
-
-              <!-- User (Desktop) -->
-              <td class="px-6 py-4 hidden md:table-cell">
-                <div
-                  class="text-xs text-gray-400 font-mono truncate max-w-[100px]"
-                  title="{{ log.metadata?.status || 'unknown' }}"
-                >
-                  {{ log.metadata?.status || 'unknown' }}
-                </div>
-              </td>
-            </tr>
+                    {{ log.metadata?.status || 'unknown' }}
+                  </div>
+                </td>
+              </tr>
+            }
 
             <!-- Empty State -->
-            <tr *ngIf="logs().length === 0 && !isLoading()">
-              <td colspan="4" class="px-6 py-12 text-center">
-                <p class="text-gray-600 text-xs uppercase tracking-widest">
-                  No audit records found
-                </p>
-              </td>
-            </tr>
+            @if (logs().length === 0 && !isLoading()) {
+              <tr>
+                <td colspan="4" class="px-6 py-12 text-center">
+                  <p class="text-gray-600 text-xs uppercase tracking-widest">
+                    No audit records found
+                  </p>
+                </td>
+              </tr>
+            }
           </tbody>
         </table>
       </div>
