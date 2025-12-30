@@ -14,8 +14,6 @@ import { PermissionEntity } from '../../models/permissions.entity';
 import { OrganizationRelationEntity } from '../../models/organization-relation.entity';
 import { FactoriesModule } from './factories.module';
 import { AuditLogEntity } from '../../models/audit-log.entity';
-import * as subscribers from '../../models/subscribers';
-import { ClsModule } from 'nestjs-cls';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({

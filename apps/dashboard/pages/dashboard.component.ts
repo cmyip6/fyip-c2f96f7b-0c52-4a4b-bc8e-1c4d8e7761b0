@@ -23,6 +23,7 @@ import { ConfirmationModalComponent } from '../components/modals/confirmation-mo
 import { GetTaskResponseInterface } from '@libs/data/type/get-task-response.interface';
 import { OrganizationApiService } from '../api-services/organization-api.service';
 import { Router } from '@angular/router';
+import { UserApiService } from '../api-services/user-api.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -43,7 +44,7 @@ import { Router } from '@angular/router';
         class="fixed inset-0 opacity-5 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"
       ></div>
 
-      <app-top-bar></app-top-bar>
+      <app-top-bar/>
 
       <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         <!-- Dashboard Header -->
@@ -410,6 +411,7 @@ import { Router } from '@angular/router';
 export class DashboardComponent implements OnDestroy, OnInit {
   private api = inject(TaskApiService);
   private orgApi = inject(OrganizationApiService);
+  private userApi = inject(UserApiService);
   private router = inject(Router);
   session = inject(SessionService);
 
@@ -466,6 +468,13 @@ export class DashboardComponent implements OnDestroy, OnInit {
             this.session.selectOrganization(orgs[0].id);
           }
         },
+        error: () => this.router.navigate(['/']),
+      });
+    }
+
+    if (this.session.user() == null) {
+      this.userApi.getCurrentUser().subscribe({
+        next: (user) => this.session.setUser(user),
         error: () => this.router.navigate(['/']),
       });
     }

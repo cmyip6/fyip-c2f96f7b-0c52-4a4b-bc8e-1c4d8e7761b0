@@ -20,11 +20,12 @@ import {
   imports: [CommonModule],
   template: `
     <!-- Backdrop (Visible on all screens now to allow closing by clicking outside) -->
-    <div
-      @if(isVisible)
-      class="fixed inset-0 bg-transparent z-30"
-      (click)="close.emit()"
-    ></div>
+    @if (isVisible) {
+      <div
+        class="fixed inset-0 bg-transparent z-30"
+        (click)="close.emit()"
+      ></div>
+    }
 
     <!-- Drawer Panel -->
     <div
